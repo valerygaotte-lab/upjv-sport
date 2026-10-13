@@ -503,6 +503,46 @@ body.view-sports .menu .dropdown:not(.classe-font) > .dropbtn::after, body.view-
 @media (max-width: 1000px) { .sports-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 700px) { .sports-page { padding: 110px 16px 80px; } .sports-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; } .sport-tile { padding: 16px; } .sport-tile h2 { font-size: 16px; } .sport-tile small { font-size: 10px; letter-spacing: 1px; } }
 
+
+/* MUSCU : salles d'Amiens et mise en relation (même esprit que les blocs du site) */
+.muscu { max-width: 1100px; margin: 0 auto; }
+.muscu[hidden], .mc-pane[hidden] { display: none; }
+.mc-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+.mc-tab { padding: 13px 24px; cursor: pointer; font: inherit; font-size: 13px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--navy); background: rgba(255,255,255,0.75); border: 2px solid var(--navy); transition: 0.2s; }
+.mc-tab:hover { transform: translateY(-2px); }
+.mc-tab.on { color: white; background: var(--navy); border-color: var(--navy); box-shadow: inset 0 -4px 0 var(--red); }
+.muscu h2 { margin-bottom: 18px; font-family: Orbitron, "Arial Black", sans-serif; font-size: clamp(20px, 2.6vw, 30px); text-transform: uppercase; color: var(--navy); }
+.gym-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.gym { padding: 24px 26px; color: white; background: linear-gradient(135deg, var(--navy), #05101f); border-left: 6px solid var(--red); box-shadow: 0 14px 40px rgba(8,45,91,0.25); }
+.gym h3 { margin-bottom: 8px; font-family: Orbitron, "Arial Black", sans-serif; font-size: 17px; text-transform: uppercase; line-height: 1.25; }
+.gym p { margin-bottom: 14px; font-size: 15px; line-height: 1.5; color: #dfe7f5; }
+.gym a { color: white; font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; border-bottom: 2px solid var(--red); }
+.mc-note { margin-top: 18px; font-size: 13px; color: #374151; }
+.mc-lead { max-width: 620px; margin-bottom: 22px; font-size: 17px; line-height: 1.6; color: #1f2937; }
+.mc-form, .mc-lock { max-width: 640px; padding: 30px; color: white; background: linear-gradient(135deg, var(--navy), #05101f); border-left: 6px solid var(--red); box-shadow: 0 14px 40px rgba(8,45,91,0.25); }
+.mc-form label { display: block; margin-bottom: 18px; font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+.mc-form input[type="text"], .mc-form input[type="tel"], .mc-form select { display: block; width: 100%; box-sizing: border-box; margin-top: 8px; padding: 13px 14px; color: white; font: inherit; font-size: 16px; letter-spacing: 0; text-transform: none; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); border-radius: 0; }
+.mc-form select option { color: #111827; }
+.mc-form input::placeholder { color: rgba(255,255,255,0.5); }
+.mc-form input:focus, .mc-form select:focus { outline: 2px solid var(--red); outline-offset: 1px; }
+.mc-opt { font-weight: 600; letter-spacing: 0; text-transform: none; color: #8fb3e0; }
+.mc-hint { margin: -6px 0 18px; font-size: 13px; color: #8fb3e0; }
+.mc-form label.mc-check { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; font-weight: 600; letter-spacing: 0; text-transform: none; line-height: 1.5; }
+.mc-check input { flex: none; margin-top: 3px; }
+.mc-btn { display: inline-block; padding: 15px 34px; cursor: pointer; border: 0; font: inherit; font-size: 14px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; text-decoration: none; color: white; background: var(--red); transition: 0.2s; }
+.mc-btn:hover { transform: translateY(-3px); }
+.mc-btn:disabled { opacity: 0.6; cursor: wait; transform: none; }
+.mc-status { margin-top: 16px; font-size: 15px; line-height: 1.5; }
+.mc-status.ok { color: #7dffb0; }
+.mc-status.err { color: #ffb0b0; }
+.mc-lock-title { margin-bottom: 8px; font-size: 20px; font-weight: 900; text-transform: uppercase; }
+.mc-lock p { line-height: 1.6; color: #dfe7f5; }
+.mc-lock-btns { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 24px; margin-top: 14px; }
+.mc-alt { color: white; font-weight: 800; text-decoration: none; border-bottom: 2px solid currentColor; }
+body:not(.logged-in) .mc-form { display: none; }
+body.logged-in .mc-lock { display: none; }
+@media (max-width: 700px) { .gym-grid { grid-template-columns: 1fr; } .mc-form, .mc-lock { padding: 22px 18px; } .mc-tab { flex: 1 1 100%; text-align: center; } }
+
 body.view-story main.hero, body.view-story .local { display: none; }
 body.view-story .menu > a:first-child::after { display: none; }
 body.view-story .menu > a[href="#histoire"]::after { content: ""; position: absolute; left: 15px; right: 15px; bottom: 19px; height: 3px; background: var(--red); border-radius: 10px; }
@@ -968,7 +1008,80 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
     <div class="sports-head">
       <p class="sports-eyebrow">UPJV SPORT · Sport</p>
       <h1 id="sport-detail-title">Sport</h1>
-      <p>Cette page est en préparation : son contenu arrive bientôt.</p>
+      <p id="sport-detail-soon">Cette page est en préparation : son contenu arrive bientôt.</p>
+    </div>
+    <div class="muscu" id="muscu-extra" hidden>
+      <div class="mc-tabs" role="tablist">
+        <button type="button" class="mc-tab on" role="tab" aria-selected="true" data-mc="salles">Où s'entraîner</button>
+        <button type="button" class="mc-tab" role="tab" aria-selected="false" data-mc="duo">S'entraîner à deux</button>
+      </div>
+
+      <div class="mc-pane" id="mc-salles">
+        <h2>Les salles à Amiens</h2>
+        <div class="gym-grid">
+        <article class="gym">
+          <h3>Basic-Fit Amiens · Rue du Général Leclerc</h3>
+          <p>22 Rue du Général Leclerc, 80000 Amiens</p>
+          <a href="https://www.google.com/maps/search/?api=1&amp;query=Basic-Fit%20Amiens%2022%20Rue%20du%20G%C3%A9n%C3%A9ral%20Leclerc%2C%2080000%20Amiens" target="_blank" rel="noopener noreferrer">Voir sur le plan</a>
+        </article>
+        <article class="gym">
+          <h3>Basic-Fit Amiens · Rue de Noyon</h3>
+          <p>7 Rue de Noyon, 80000 Amiens</p>
+          <a href="https://www.google.com/maps/search/?api=1&amp;query=Basic-Fit%20Amiens%207%20Rue%20de%20Noyon%2C%2080000%20Amiens" target="_blank" rel="noopener noreferrer">Voir sur le plan</a>
+        </article>
+        <article class="gym">
+          <h3>Basic-Fit Amiens · Avenue de l'Europe</h3>
+          <p>150 Avenue de l'Europe, 80000 Amiens</p>
+          <a href="https://www.google.com/maps/search/?api=1&amp;query=Basic-Fit%20Amiens%20150%20Avenue%20de%20l%27Europe%2C%2080000%20Amiens" target="_blank" rel="noopener noreferrer">Voir sur le plan</a>
+        </article>
+        <article class="gym">
+          <h3>Keepcool Amiens Centre</h3>
+          <p>2 Rue Robert de Luzarches, 80000 Amiens</p>
+          <a href="https://www.google.com/maps/search/?api=1&amp;query=Keepcool%20Amiens%20Centre%202%20Rue%20Robert%20de%20Luzarches%2C%2080000%20Amiens" target="_blank" rel="noopener noreferrer">Voir sur le plan</a>
+        </article>
+        </div>
+        <p class="mc-note">Adresses relevées sur les sites officiels des enseignes. Tarifs, horaires et accès : à vérifier auprès de chaque salle.</p>
+      </div>
+
+      <div class="mc-pane" id="mc-duo" hidden>
+        <h2>Trouve un partenaire d'entraînement</h2>
+        <p class="mc-lead">Laisse tes coordonnées pour t'entraîner à deux : Instagram et/ou Snapchat. Le numéro de téléphone est facultatif.</p>
+        <div class="mc-lock">
+          <p class="mc-lock-title">Réservé aux membres</p>
+          <p>Pour protéger les coordonnées de chacun, crée ton compte ou connecte-toi.</p>
+          <p class="mc-lock-btns"><a href="#" class="mc-btn" data-open="modal-signup">S'inscrire</a><a href="#" class="mc-alt" data-open="modal-login">J'ai déjà un compte</a></p>
+        </div>
+        <form class="mc-form" id="form-muscu" name="contact-muscu" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+          <input type="hidden" name="form-name" value="contact-muscu">
+          <p hidden><label>Ne pas remplir : <input name="bot-field"></label></p>
+          <label>Prénom ou pseudo
+            <input type="text" name="prenom" required autocomplete="given-name" maxlength="60">
+          </label>
+          <label>Instagram
+            <input type="text" name="instagram" placeholder="@ton_pseudo" autocomplete="off" maxlength="60">
+          </label>
+          <label>Snapchat
+            <input type="text" name="snapchat" placeholder="ton_pseudo" autocomplete="off" maxlength="60">
+          </label>
+          <p class="mc-hint">Renseigne au moins Instagram ou Snapchat.</p>
+          <label>Numéro de téléphone <span class="mc-opt">(facultatif)</span>
+            <input type="tel" name="telephone" placeholder="06 00 00 00 00" autocomplete="tel" maxlength="20">
+          </label>
+          <label>Salle souhaitée <span class="mc-opt">(facultatif)</span>
+            <select name="salle">
+              <option value="">Peu importe</option>
+              <option>Basic-Fit · Rue du Général Leclerc</option>
+              <option>Basic-Fit · Rue de Noyon</option>
+              <option>Basic-Fit · Avenue de l'Europe</option>
+              <option>Keepcool Amiens Centre</option>
+              <option>Une autre salle</option>
+            </select>
+          </label>
+          <label class="mc-check"><input type="checkbox" name="accord" required> J'accepte que mes coordonnées soient utilisées pour être mis en relation avec un partenaire d'entraînement.</label>
+          <button type="submit" class="mc-btn">Envoyer</button>
+          <div class="mc-status" id="muscu-status" role="status"></div>
+        </form>
+      </div>
     </div>
   </section>
 
@@ -1021,7 +1134,12 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
       names.forEach((n) => b.classList.toggle("view-" + n, n === view));
       b.classList.toggle("sub-rank", /^classement-/.test(id || "")); // page classement / tableau (même fond que l'inscription)
       if (view === "story" && was !== "story") playStory();
-      if (view === "sport") document.getElementById("sport-detail-title").textContent = SPORT_NAMES[id.slice(6)] || "Sport";
+      if (view === "sport") {
+        document.getElementById("sport-detail-title").textContent = SPORT_NAMES[id.slice(6)] || "Sport";
+        const isMuscu = id === "sport-muscu"; // la page Muscu a son propre contenu (salles + mise en relation)
+        document.getElementById("muscu-extra").hidden = !isMuscu;
+        document.getElementById("sport-detail-soon").hidden = isMuscu;
+      }
       if (view !== "home") window.scrollTo(0, 0);
       else if (id) { const t = document.getElementById(id); if (t) t.scrollIntoView(); }
     }
@@ -1581,6 +1699,33 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
         const first = pr.querySelector("input"), name = mode === "2V2" ? $("padel-duo").value.trim()
           : (first.value.trim().toUpperCase() + " " + pr.querySelectorAll("input")[1].value.trim());
         send(pf, $("padel-status"), pf.querySelector(".cl-submit"), () => { padelRows(""); addPending("padel", mode, name); goRank("classement-padel"); });
+      });
+    })();
+  </script>
+
+  <script>
+    // MUSCU : onglets « Où s'entraîner » / « S'entraîner à deux » et envoi du formulaire de contact
+    (function () {
+      const tabs = document.querySelectorAll(".mc-tab");
+      tabs.forEach((t) => t.addEventListener("click", () => {
+        tabs.forEach((x) => { const on = x === t; x.classList.toggle("on", on); x.setAttribute("aria-selected", on); });
+        document.getElementById("mc-salles").hidden = t.dataset.mc !== "salles";
+        document.getElementById("mc-duo").hidden = t.dataset.mc !== "duo";
+      }));
+      const form = document.getElementById("form-muscu"), status = document.getElementById("muscu-status");
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const say = (cls, txt) => { status.className = "mc-status " + cls; status.textContent = txt; };
+        if (!window.UPJV_USER) return say("err", "Connecte-toi pour envoyer tes coordonnées.");
+        if (!form.instagram.value.trim() && !form.snapchat.value.trim()) return say("err", "Renseigne au moins ton Instagram ou ton Snapchat.");
+        const btn = form.querySelector(".mc-btn"); btn.disabled = true; say("", "");
+        try {
+          const r = await fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams(new FormData(form)).toString() });
+          if (!r.ok) throw new Error(r.status);
+          say("ok", "Merci ! Tes coordonnées sont bien envoyées : on te met en relation avec un partenaire d'entraînement."); form.reset();
+        } catch (err) {
+          say("err", "L'envoi n'a pas fonctionné. Le formulaire ne fonctionne que sur le site publié avec un service de formulaires (Netlify) : réessaie une fois le site en ligne.");
+        } finally { btn.disabled = false; }
       });
     })();
   </script>
