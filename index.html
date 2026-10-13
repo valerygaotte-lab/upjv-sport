@@ -646,6 +646,13 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
 .modal-status.ok { color: #9be39b; }
 .modal-switch { margin-top: 10px; font-size: 14px; color: #c9d8ec; }
 .modal-switch a { color: white; font-weight: 700; }
+.site-footer { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px 26px; padding: 22px 16px; background: #05101f; border-top: 3px solid var(--red); color: #aeb9d0; font-size: 13px; text-align: center; }
+.site-footer a { color: white; font-weight: 700; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.4); }
+.site-footer a:hover { color: var(--red); border-color: var(--red); }
+.legal-box { max-width: 720px; }
+.legal-box h3 { margin: 20px 0 8px; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; color: #8fb3e0; }
+.legal-box p { margin-bottom: 10px; font-size: 14px; line-height: 1.6; color: #dfe7f5; }
+.legal-todo { color: #ffb0b0; font-weight: 700; }
   </style>
 </head>
 
@@ -869,7 +876,36 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
     </div>
   </section>
 
+  <!-- PIED DE PAGE (affiché sur toutes les pages) -->
+  <footer class="site-footer">
+    <span>© <span id="footer-year">2026</span> UPJV SPORT · Projet étudiant</span>
+    <a href="#" data-open="modal-legal">Mentions légales</a>
+    <a href="#" data-open="modal-legal" data-legal="privacy">Confidentialité</a>
+  </footer>
+
+  <div class="modal" id="modal-legal" hidden>
+    <div class="modal-box legal-box" role="dialog" aria-modal="true" aria-labelledby="legal-title" tabindex="-1">
+      <button type="button" class="modal-close" data-close aria-label="Fermer">×</button>
+      <h2 id="legal-title">Mentions légales</h2>
+      <h3>Éditeur du site</h3>
+      <p>UPJV SPORT est un projet étudiant non commercial réalisé par Walid Fouilah et Valéry Gaotte, étudiants en 3ᵉ année de Techniques de Commercialisation à l'IUT d'Amiens. Ce site n'est pas un site officiel de l'Université de Picardie Jules Verne (UPJV).</p>
+      <p>Directeurs de la publication : Walid Fouilah et Valéry Gaotte.<br>Contact : <span class="legal-todo">[adresse e-mail de contact à compléter]</span></p>
+      <h3>Hébergement</h3>
+      <p>Netlify, Inc. – 44 Montgomery Street, Suite 300, San Francisco, CA 94104, États-Unis – www.netlify.com.<br>Code source et données des événements : GitHub, Inc. – 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p>
+      <h3>Propriété intellectuelle</h3>
+      <p>Les textes, vidéos et la mise en page du site sont la propriété de leurs auteurs. Les logos, noms et marques des clubs (Amiens SC, Gothiques d'Amiens) appartiennent à leurs propriétaires respectifs et ne sont utilisés qu'à titre d'information.</p>
+      <h3>Informations sur les événements</h3>
+      <p>Les matchs affichés dans « Autour d'Amiens » sont récupérés automatiquement sur la billetterie officielle des Gothiques d'Amiens et sur le calendrier de la FFF (via TheFootData). Ils sont donnés à titre indicatif : vérifiez toujours la date, l'heure et les billets sur les sites officiels des clubs.</p>
+      <h3 id="legal-privacy">Données personnelles</h3>
+      <p>Les formulaires d'inscription (Classé) collectent les noms et prénoms des joueurs, le nom de l'équipe ou du duo, uniquement pour organiser les tournois et afficher les classements. Ces données sont transmises à Netlify (Netlify Forms) et ne sont ni vendues ni cédées. Les fenêtres « S'inscrire » et « Se connecter » n'enregistrent aucune donnée pour le moment.</p>
+      <p>Conformément au RGPD et à la loi « Informatique et Libertés », vous pouvez demander l'accès, la rectification ou la suppression de vos données en écrivant au contact ci-dessus. Vous pouvez aussi saisir la CNIL (www.cnil.fr).</p>
+      <h3>Cookies</h3>
+      <p>Le site n'utilise pas de cookies publicitaires ni de mesure d'audience. Il garde seulement dans votre navigateur (stockage local) vos inscriptions « en attente » pour les afficher sur le classement.</p>
+    </div>
+  </div>
+
   <script>
+    document.getElementById("footer-year").textContent = new Date().getFullYear();
     // Affiche la page « Notre Histoire » quand on clique sur l'onglet, la page d'accueil sinon.
     // Ce bloc est volontairement placé en premier : il fonctionne même si une autre partie du script échoue.
     // Relance les deux vidéos depuis le début ; à la fin elles restent figées sur leur dernière image
@@ -1131,8 +1167,9 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
         document.querySelectorAll(".modal").forEach((m) => { m.hidden = true; });
         const m = document.getElementById(id); if (!m) return;
         m.hidden = false; document.body.style.overflow = "hidden";
-        const st = m.querySelector(".modal-status"); st.textContent = ""; st.className = "modal-status";
-        m.querySelector("input").focus();
+        const st = m.querySelector(".modal-status"); if (st) { st.textContent = ""; st.className = "modal-status"; }
+        const field = m.querySelector("input"); (field || m.querySelector(".modal-box")).focus();
+        const box = m.querySelector(".modal-box"); if (box) box.scrollTop = 0;
       }
       function close() {
         document.querySelectorAll(".modal").forEach((m) => { m.hidden = true; });
@@ -1140,7 +1177,11 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
       }
       document.addEventListener("click", (e) => {
         const t = e.target.closest("[data-open]");
-        if (t) { e.preventDefault(); if (!t.closest(".modal")) last = t; open(t.dataset.open); return; }
+        if (t) {
+          e.preventDefault(); if (!t.closest(".modal")) last = t; open(t.dataset.open);
+          if (t.dataset.legal === "privacy") document.getElementById("legal-privacy").scrollIntoView();
+          return;
+        }
         if (e.target.closest("[data-close]") || e.target.classList.contains("modal")) close();
       });
       document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
