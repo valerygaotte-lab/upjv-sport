@@ -1,0 +1,6 @@
+{
+  "_aide": "Équipes affichées sur les tableaux de la page Classé. Après avoir vérifié une inscription reçue (et que les joueurs ont bien déjà joué au moins un match de five / de padel), ajoute-la ici. Foot : categorie = « Foot à 5 », « Foot à 8 » ou « Foot à 11 ». Padel : tournoi = « 1V1 » ou « 2V2 », nom = nom du duo ou du joueur.",
+  "updated_at": null,
+  "foot": [],
+  "padel": []
+}
