@@ -133,6 +133,43 @@ def has_purchase_signal(soup: BeautifulSoup, page_text: str) -> bool:
     return False
 
 
+def _gothiques_cards(soup: BeautifulSoup, base: str) -> dict[str, list[list[str]]]:
+    """Pour chaque événement de la liste : lignes de texte de ses cartes (« Amiens | Marseille | … | Ven 16 Oct, 20h15 | … »).
+    Une carte est le plus grand bloc autour d'un lien qui ne contient aucun lien vers un autre événement
+    (un même événement peut avoir plusieurs cartes : « prochain évènement » et liste)."""
+    def event_id(href: str) -> str | None:
+        m = re.search(r"/fr/evenement/(\d+)(?:/|$|\?)", urljoin(base, href))
+        return m.group(1) if m else None
+
+    cards: dict[str, list[list[str]]] = {}
+    seen = set()
+    for a in soup.find_all("a", href=True):
+        number = event_id(a["href"])
+        if not number:
+            continue
+        url = f"{GOTHIQUES_TICKETING}/evenement/{number}/details"
+        node = a
+        while node.parent is not None and node.parent.name not in ("body", "html", "[document]"):
+            others = {event_id(x["href"]) for x in node.parent.find_all("a", href=True)} - {None, number}
+            if others:
+                break
+            node = node.parent
+        if id(node) in seen:
+            continue
+        seen.add(id(node))
+        cards.setdefault(url, []).append([normalize(x) for x in node.get_text("\n").split("\n") if normalize(x)])
+    return cards
+
+
+def gothiques_opponent(title: str) -> str:
+    """Adversaire lu dans un titre « Amiens - Rouen » / « Gothiques vs Rouen » ; "" si le titre n'est pas de cette forme."""
+    teams = re.split(r"\s+(?:[-–—]|vs\.?|contre)\s+", title, maxsplit=1, flags=re.I)
+    if len(teams) != 2:
+        return ""
+    home = _fold(teams[0])
+    return normalize(teams[1]) if ("amiens" in home or "gothiques" in home) else ""
+
+
 def scrape_gothiques(previous: dict[str, dict] | None = None) -> list[dict] | None:
     """Renvoie la liste des événements, ou None si la récupération a échoué (≠ liste vide : aucun événement)."""
     previous = previous or {}
@@ -201,6 +238,7 @@ def scrape_gothiques(previous: dict[str, dict] | None = None) -> list[dict] | No
             "id": event_id,
             "club": "Gothiques d'Amiens",
             "match": title_text,
+            "adversaire": gothiques_opponent(title_text),
             "date": event_date.isoformat(),
             "lieu": "Coliseum, Amiens",
             "billetterie": url,
@@ -435,6 +473,7 @@ def scrape_amiens_sc() -> list[dict] | None:
             "id": event_id,
             "club": AMIENS_SC_CLUB,
             "match": f"Amiens SC - {info['away']}",
+            "adversaire": info["away"],
             "date": info["when"].isoformat(),
             "lieu": AMIENS_SC_VENUE,
             "billetterie": AMIENS_SC_TICKET_LINK,
@@ -603,17 +642,34 @@ def diagnostic() -> int:
 
     now = datetime.now(PARIS)
     season = now.year if now.month >= 7 else now.year - 1
-    team = show(f"{FOOTDATA_BASE}/clubs/amiens-sporting-club-football?equipe={FOOTDATA_TEAM}&saison={season}", ("matchs/", "jouer", "calendrier"))
+    team_url = f"{FOOTDATA_BASE}/clubs/amiens-sporting-club-football?equipe={FOOTDATA_TEAM}&saison={season}"
+    team = get_soup(team_url)
     if team:
-        home = [a["href"] for a in team.find_all("a", href=True) if re.search(r"/matchs/\d+-amiens", a["href"])]
-        for href in home[-3:]:
-            page = show(urljoin(FOOTDATA_BASE, href))
-            if page:
-                info, why = _parse_footdata_match(page)
-                print(f"=> analyse : {info or why}")
+        print("\n===== Horaires publiés (tous les matchs de la saison)")
+        for a in team.find_all("a", href=True):
+            m = re.search(r"/matchs/(\d+)-([a-z0-9-]+)", a["href"])
+            if not m:
+                continue
+            time.sleep(0.5)
+            page = get_soup(urljoin(FOOTDATA_BASE, a["href"]))
+            if not page:
+                continue
+            text = page.get_text("\n")
+            lines = [normalize(x) for x in text.split("\n") if normalize(x)]
+            i = next((k for k, x in enumerate(lines) if re.search(r"\b20\d{2}-20\d{2}\b", x) and "·" in x), None)
+            excerpt = " | ".join(lines[i:i + 6]) if i is not None else "?"
+            print(f"  {_fold(a.get_text())[:8]:8} {m.group(2)[:40]:40} {excerpt[:160]}")
     show("https://www.amiensfootball.com/", ("match", "calendrier", "billet", "ticket", "equipe"))
     show(AMIENS_SC_TICKETING, ("match", "billet", "event", "evenement", "manifestation", "achat"))
-    show(GOTHIQUES_TICKETING, ("evenement",))
+    for url in (GOTHIQUES_TICKETING, GOTHIQUES_TICKETING + "/calendrier"):
+        page = show(url, ("evenement", "calendrier"))
+        if page:
+            for card_url, found in _gothiques_cards(page, url).items():
+                for lines in found:
+                    print(f"  carte {card_url} : {' | '.join(lines)[:300]}")
+    detail = show(GOTHIQUES_TICKETING + "/evenement/36/details")
+    if detail:
+        print("h1/h2 : " + " / ".join(normalize(h.get_text(" ", strip=True)) for h in detail.find_all(["h1", "h2", "h3"])[:10]))
     return 0
 
 
