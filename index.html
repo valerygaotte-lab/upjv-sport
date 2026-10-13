@@ -1225,8 +1225,8 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
       // ===== COMPTES (Supabase) =====
       // Renseigner ici l'adresse du projet et la clé publique « anon » (Supabase › Project Settings › API).
       // La clé « anon » est faite pour être publique ; ne JAMAIS mettre ici la clé « service_role ».
-      const SUPABASE_URL = "";
-      const SUPABASE_ANON_KEY = "";
+      const SUPABASE_URL = "https://jfzqwlnnbkiflxcmaprj.supabase.co";
+      const SUPABASE_ANON_KEY = "sb_publishable_b4_VUuvieW-TkhxDpiQPPg_wNTRhNzQ"; // clé publique (publishable), sans danger dans la page
       const sb = SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
       if (!sb) console.warn("[UPJV SPORT · comptes] Service de comptes non configuré (SUPABASE_URL / SUPABASE_ANON_KEY vides) ou bibliothèque non chargée.");
       const say = (el, cls, txt) => { el.className = "modal-status " + cls; el.textContent = txt; };
