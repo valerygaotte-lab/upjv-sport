@@ -650,6 +650,10 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
 .site-footer a { color: white; font-weight: 700; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.4); }
 .site-footer a:hover { color: var(--red); border-color: var(--red); }
 .legal-box { max-width: 720px; }
+.account-line { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.15); font-size: 15px; }
+.account-line span { color: #8fb3e0; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+.account-line b { overflow-wrap: anywhere; text-align: right; }
+.account-line + .modal-submit { margin-top: 22px; }
 .legal-box h3 { margin: 20px 0 8px; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; color: #8fb3e0; }
 .legal-box p { margin-bottom: 10px; font-size: 14px; line-height: 1.6; color: #dfe7f5; }
 .legal-todo { color: #ffb0b0; font-weight: 700; }
@@ -724,8 +728,19 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
       <label>Mot de passe<input name="password" type="password" autocomplete="current-password" required></label>
       <button type="submit" class="modal-submit">Se connecter</button>
       <p class="modal-status" role="status"></p>
+      <p class="modal-switch"><a href="#" data-forgot>Mot de passe oublié ?</a></p>
       <p class="modal-switch">Pas encore de compte ? <a href="#" data-open="modal-signup">S'inscrire</a></p>
     </form>
+  </div>
+  <div class="modal" id="modal-account" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="account-title" tabindex="-1">
+      <button type="button" class="modal-close" data-close aria-label="Fermer">×</button>
+      <h2 id="account-title">Mon compte</h2>
+      <p class="account-line"><span>Nom</span><b id="account-name"></b></p>
+      <p class="account-line"><span>E-mail</span><b id="account-email"></b></p>
+      <button type="button" class="modal-submit" id="account-logout">Se déconnecter</button>
+      <p class="modal-status" role="status"></p>
+    </div>
   </div>
 
   <!-- HERO / PAGE D'ACCUEIL -->
@@ -897,13 +912,14 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
       <h3>Informations sur les événements</h3>
       <p>Les matchs affichés dans « Autour d'Amiens » sont récupérés automatiquement sur la billetterie officielle des Gothiques d'Amiens et sur le calendrier de la FFF (via TheFootData). Ils sont donnés à titre indicatif : vérifiez toujours la date, l'heure et les billets sur les sites officiels des clubs.</p>
       <h3 id="legal-privacy">Données personnelles</h3>
-      <p>Les formulaires d'inscription (Classé) collectent les noms et prénoms des joueurs, le nom de l'équipe ou du duo, uniquement pour organiser les tournois et afficher les classements. Ces données sont transmises à Netlify (Netlify Forms) et ne sont ni vendues ni cédées. Les fenêtres « S'inscrire » et « Se connecter » n'enregistrent aucune donnée pour le moment.</p>
+      <p>Les formulaires d'inscription (Classé) collectent les noms et prénoms des joueurs, le nom de l'équipe ou du duo, uniquement pour organiser les tournois et afficher les classements. Ces données sont transmises à Netlify (Netlify Forms) et ne sont ni vendues ni cédées. Les comptes (« S'inscrire » / « Se connecter ») enregistrent le nom, le prénom, l'adresse e-mail et le mot de passe (chiffré) chez Supabase, uniquement pour permettre la connexion au site.</p>
       <p>Conformément au RGPD et à la loi « Informatique et Libertés », vous pouvez demander l'accès, la rectification ou la suppression de vos données en écrivant au contact ci-dessus. Vous pouvez aussi saisir la CNIL (www.cnil.fr).</p>
       <h3>Cookies</h3>
-      <p>Le site n'utilise pas de cookies publicitaires ni de mesure d'audience. Il garde seulement dans votre navigateur (stockage local) vos inscriptions « en attente » pour les afficher sur le classement.</p>
+      <p>Le site n'utilise pas de cookies publicitaires ni de mesure d'audience. Il garde seulement dans votre navigateur (stockage local) votre session de connexion et vos inscriptions « en attente » pour les afficher sur le classement.</p>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
   <script>
     document.getElementById("footer-year").textContent = new Date().getFullYear();
     // Affiche la page « Notre Histoire » quand on clique sur l'onglet, la page d'accueil sinon.
@@ -1159,8 +1175,7 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
 
   <script>
     // Fenêtres « S'inscrire » et « Se connecter ».
-    // Le site est statique : il n'a pas encore de serveur de comptes. Les champs sont vérifiés ici, mais aucun mot de passe
-    // n'est envoyé ni enregistré tant qu'un service d'authentification (ex. Netlify Identity, Supabase) n'est pas branché.
+    // Les comptes sont gérés par Supabase (mots de passe chiffrés côté Supabase, jamais stockés par le site).
     (function () {
       let last = null;
       function open(id) {
@@ -1185,20 +1200,97 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
         if (e.target.closest("[data-close]") || e.target.classList.contains("modal")) close();
       });
       document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
-      document.querySelectorAll(".modal form").forEach((f) => f.addEventListener("submit", (e) => {
+      // ===== COMPTES (Supabase) =====
+      // Renseigner ici l'adresse du projet et la clé publique « anon » (Supabase › Project Settings › API).
+      // La clé « anon » est faite pour être publique ; ne JAMAIS mettre ici la clé « service_role ».
+      const SUPABASE_URL = "";
+      const SUPABASE_ANON_KEY = "";
+      const sb = SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+      if (!sb) console.warn("[UPJV SPORT · comptes] Service de comptes non configuré (SUPABASE_URL / SUPABASE_ANON_KEY vides) ou bibliothèque non chargée.");
+      const say = (el, cls, txt) => { el.className = "modal-status " + cls; el.textContent = txt; };
+      const FR_ERRORS = [
+        [/already registered|already exists/i, "Un compte existe déjà avec cette adresse e-mail : connecte-toi."],
+        [/invalid login credentials/i, "E-mail ou mot de passe incorrect."],
+        [/email not confirmed/i, "Confirme d'abord ton adresse : clique sur le lien reçu par e-mail."],
+        [/password.*(at least|short|characters)/i, "Le mot de passe doit contenir au moins 8 caractères."],
+        [/rate limit|too many/i, "Trop de tentatives : réessaie dans quelques minutes."],
+        [/fetch|network/i, "Connexion au service de comptes impossible : vérifie ta connexion Internet."]
+      ];
+      const frError = (err) => (FR_ERRORS.find(([re]) => re.test(err && err.message || "")) || [0, "Une erreur est survenue : " + (err && err.message || "inconnue") + "."])[1];
+
+      // En-tête et bouton d'accueil selon l'état de connexion
+      function showUser(user) {
+        const btn = document.querySelector(".actions .login"), hero = document.querySelector(".hero-buttons .btn-primary");
+        const meta = (user && user.user_metadata) || {};
+        if (user) {
+          btn.textContent = "Mon compte" + (meta.prenom ? " · " + meta.prenom : ""); btn.dataset.open = "modal-account";
+          if (hero) { hero.textContent = "Mon compte"; hero.dataset.open = "modal-account"; }
+          document.getElementById("account-name").textContent = [meta.prenom, meta.nom].filter(Boolean).join(" ") || "—";
+          document.getElementById("account-email").textContent = user.email || "";
+        } else {
+          btn.textContent = "Se connecter"; btn.dataset.open = "modal-login";
+          if (hero) { hero.textContent = "S'inscrire"; hero.dataset.open = "modal-signup"; }
+        }
+      }
+      if (sb) {
+        sb.auth.getSession().then(({ data }) => showUser(data.session ? data.session.user : null));
+        sb.auth.onAuthStateChange((_event, session) => showUser(session ? session.user : null));
+      }
+
+      document.querySelectorAll(".modal form").forEach((f) => f.addEventListener("submit", async (e) => {
         e.preventDefault();
         const st = f.querySelector(".modal-status");
         const bad = [...f.querySelectorAll("input")].find((i) => !i.value.trim() || !i.checkValidity());
         if (bad) {
-          st.className = "modal-status err";
-          st.textContent = bad.type === "email" ? "Saisis une adresse e-mail valide."
+          say(st, "err", bad.type === "email" ? "Saisis une adresse e-mail valide."
             : bad.name === "password" && bad.value ? "Le mot de passe doit contenir au moins 8 caractères."
-            : "Merci de remplir tous les champs.";
+            : "Merci de remplir tous les champs.");
           bad.focus(); return;
         }
-        st.className = "modal-status err";
-        st.textContent = "Les comptes ne sont pas encore ouverts sur le site : ton inscription n'a pas été enregistrée. Réessaie bientôt !";
+        if (!sb) { say(st, "err", "Le service de comptes est momentanément indisponible. Réessaie plus tard."); return; }
+        const signup = f.closest(".modal").id === "modal-signup", btn = f.querySelector(".modal-submit");
+        const email = f.email.value.trim(), password = f.password.value;
+        btn.disabled = true; say(st, "", signup ? "Création du compte…" : "Connexion…");
+        try {
+          if (signup) {
+            const { data, error } = await sb.auth.signUp({ email, password, options: {
+              data: { nom: f.nom.value.trim(), prenom: f.prenom.value.trim() },
+              emailRedirectTo: location.origin + location.pathname } });
+            if (error) throw error;
+            if (data.user && Array.isArray(data.user.identities) && !data.user.identities.length) throw new Error("already registered");
+            f.reset();
+            say(st, "ok", data.session ? "Compte créé, tu es connecté. Bienvenue !" : "Compte créé ! Clique sur le lien reçu par e-mail pour l'activer, puis connecte-toi.");
+            if (data.session) setTimeout(close, 1500);
+          } else {
+            const { error } = await sb.auth.signInWithPassword({ email, password });
+            if (error) throw error;
+            f.reset(); say(st, "ok", "Connecté. Bon retour !"); setTimeout(close, 1000);
+          }
+        } catch (err) { say(st, "err", frError(err)); }
+        finally { btn.disabled = false; }
       }));
+
+      document.querySelector("[data-forgot]").addEventListener("click", async (e) => {
+        e.preventDefault();
+        const f = document.querySelector("#modal-login form"), st = f.querySelector(".modal-status");
+        if (!f.email.value.trim() || !f.email.checkValidity()) { say(st, "err", "Saisis d'abord ton adresse e-mail ci-dessus."); f.email.focus(); return; }
+        if (!sb) { say(st, "err", "Le service de comptes est momentanément indisponible. Réessaie plus tard."); return; }
+        const { error } = await sb.auth.resetPasswordForEmail(f.email.value.trim(), { redirectTo: location.origin + location.pathname });
+        say(st, error ? "err" : "ok", error ? frError(error) : "Si un compte existe, un e-mail pour changer ton mot de passe vient d'être envoyé.");
+      });
+      document.getElementById("account-logout").addEventListener("click", async () => {
+        const st = document.querySelector("#modal-account .modal-status");
+        const { error } = await sb.auth.signOut();
+        if (error) say(st, "err", frError(error)); else close();
+      });
+      // Retour du lien « mot de passe oublié » : on demande le nouveau mot de passe.
+      if (sb) sb.auth.onAuthStateChange(async (event) => {
+        if (event !== "PASSWORD_RECOVERY") return;
+        const pwd = prompt("Choisis ton nouveau mot de passe (8 caractères minimum) :");
+        if (!pwd || pwd.length < 8) { alert("Mot de passe non modifié (8 caractères minimum)."); return; }
+        const { error } = await sb.auth.updateUser({ password: pwd });
+        alert(error ? frError(error) : "Mot de passe modifié. Tu es connecté.");
+      });
     })();
 
     // Formulaires d'inscription (Classé). Ils s'envoient via Netlify Forms une fois le site publié sur Netlify.
