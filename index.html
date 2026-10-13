@@ -495,6 +495,10 @@ body.view-sports .menu .dropdown:not(.classe-font) > .dropbtn::after, body.view-
 .sport-tile h2 { overflow-wrap: anywhere; font-family: Orbitron, "Arial Black", sans-serif; font-size: clamp(17px, 1.8vw, 24px); font-weight: 900; text-transform: uppercase; line-height: 1.1; }
 .sport-tile small { display: block; margin-top: 8px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #8fb3e0; }
 
+.sport-tile { isolation: isolate; }
+.sport-tile::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--tile-img) center / cover no-repeat; opacity: 0.38; transition: opacity 0.25s, transform 0.4s; }
+.sport-tile:hover::before, .sport-tile:focus-visible::before { opacity: 0.55; transform: scale(1.04); }
+.sport-tile h2 { text-shadow: 0 2px 10px rgba(5,16,31,0.7); }
 .sport-tile::after { content: ""; position: absolute; right: -40px; top: -40px; width: 120px; height: 120px; border-radius: 50%; background: rgba(224,17,43,0.18); }
 @media (max-width: 1000px) { .sports-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 700px) { .sports-page { padding: 110px 16px 80px; } .sports-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; } .sport-tile { padding: 16px; } .sport-tile h2 { font-size: 16px; } .sport-tile small { font-size: 10px; letter-spacing: 1px; } }
@@ -947,14 +951,14 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
       <p>Trouve des partenaires et des matchs près de chez toi, sur les campus de l'UPJV.</p>
     </div>
     <div class="sports-grid">
-      <a href="#sport-foot" class="sport-tile"><h2>Foot</h2></a>
-      <a href="#sport-basket" class="sport-tile"><h2>Basket</h2></a>
-      <a href="#sport-padel" class="sport-tile"><h2>Padel</h2></a>
-      <a href="#sport-tennis" class="sport-tile"><h2>Tennis</h2></a>
-      <a href="#sport-course" class="sport-tile"><h2>Course à pied</h2></a>
-      <a href="#sport-muscu" class="sport-tile"><h2>Muscu</h2></a>
-      <a href="#sport-street-workout" class="sport-tile"><h2>Street workout</h2></a>
-      <a href="#sport-autres" class="sport-tile"><h2>Autres sports</h2></a>
+      <a href="#sport-foot" class="sport-tile" style="--tile-img: url('images/sport-foot.jpg')"><h2>Foot</h2></a>
+      <a href="#sport-basket" class="sport-tile" style="--tile-img: url('images/sport-basket.jpg')"><h2>Basket</h2></a>
+      <a href="#sport-padel" class="sport-tile" style="--tile-img: url('images/sport-padel.jpg')"><h2>Padel</h2></a>
+      <a href="#sport-tennis" class="sport-tile" style="--tile-img: url('images/sport-tennis.jpg')"><h2>Tennis</h2></a>
+      <a href="#sport-course" class="sport-tile" style="--tile-img: url('images/sport-course.jpg')"><h2>Course à pied</h2></a>
+      <a href="#sport-muscu" class="sport-tile" style="--tile-img: url('images/sport-muscu.jpg')"><h2>Muscu</h2></a>
+      <a href="#sport-street-workout" class="sport-tile" style="--tile-img: url('images/sport-street-workout.jpg')"><h2>Street workout</h2></a>
+      <a href="#sport-autres" class="sport-tile" style="--tile-img: url('images/sport-autres.jpg')"><h2>Autres sports</h2></a>
     </div>
   </section>
 
