@@ -1,6 +1,196 @@
 {
-  "updated_at": null,
-  "sources": {},
+  "updated_at": "2026-10-13T08:17:50.261033+00:00",
+  "sources": {
+    "Gothiques d'Amiens": {
+      "ok": true,
+      "trouves": 5
+    },
+    "Amiens SC": {
+      "ok": true,
+      "trouves": 13
+    }
+  },
   "avertissements": [],
-  "evenements": []
+  "evenements": [
+    {
+      "id": "gothiques-7",
+      "club": "Gothiques d'Amiens",
+      "match": "Match des Gothiques d'Amiens",
+      "date": "2026-10-16T20:15:00+02:00",
+      "lieu": "Coliseum, Amiens",
+      "billetterie": "https://billetterie.lesgothiques.com/fr/evenement/7/details",
+      "source": "https://billetterie.lesgothiques.com/fr/evenement/7/details",
+      "statut": "billetterie détectée"
+    },
+    {
+      "id": "gothiques-8",
+      "club": "Gothiques d'Amiens",
+      "match": "Match des Gothiques d'Amiens",
+      "date": "2026-10-25T18:00:00+01:00",
+      "lieu": "Coliseum, Amiens",
+      "billetterie": "https://billetterie.lesgothiques.com/fr/evenement/8/details",
+      "source": "https://billetterie.lesgothiques.com/fr/evenement/8/details",
+      "statut": "billetterie détectée"
+    },
+    {
+      "id": "amiens-sc-55670169",
+      "club": "Amiens SC",
+      "match": "Amiens SC - Thionville Lusitanos",
+      "date": "2026-10-29T20:45:00+01:00",
+      "lieu": "Stade Crédit Agricole la Licorne, Amiens",
+      "billetterie": "https://billetterie.amiensfootball.com/",
+      "source": "https://thefootdata.com/matchs/55670169-amiens-scf-thionville-lusitanos",
+      "statut": "TheFootData (données FFF) · Ligue 3 (ex-National) · billetterie : page d'accueil du club"
+    },
+    {
+      "id": "gothiques-9",
+      "club": "Gothiques d'Amiens",
+      "match": "Match des Gothiques d'Amiens",
+      "date": "2026-10-30T20:15:00+01:00",
+      "lieu": "Coliseum, Amiens",
+      "billetterie": "https://billetterie.lesgothiques.com/fr/evenement/9/details",
+      "source": "https://billetterie.lesgothiques.com/fr/evenement/9/details",
+      "statut": "billetterie détectée"
+    },
+    {
+      "id": "gothiques-36",
+      "club": "Gothiques d'Amiens",
+      "match": "Match des Gothiques d'Amiens",
+      "date": "2026-11-05T16:00:00+01:00",
+      "lieu": "Coliseum, Amiens",
+      "billetterie": "https://billetterie.lesgothiques.com/fr/evenement/36/details",
+      "source": "https://billetterie.lesgothiques.com/fr/evenement/36/details",
+      "statut": "billetterie détectée"
+    },
+    {
+      "id": "gothiques-37",
+      "club": "Gothiques d'Amiens",
+      "match": "Match des Gothiques d'Amiens",
+      "date": "2026-11-05T20:00:00+01:00",
+      "lieu": "Coliseum, Amiens",
+      "billetterie": "https://billetterie.lesgothiques.com/fr/evenement/37/details",
+      "source": "https://billetterie.lesgothiques.com/fr/evenement/37/details",
+      "statut": "billetterie détectée"
+    },
+    {
+      "id": "amiens-sc-55670186",
+      "club": "Amiens SC",
+      "match": "Amiens SC - Sm Caen",
+      "date": "2026-11-19T20:45:00+01:00",
+      "lieu": "Stade Crédit Agricole la Licorne, Amiens",
+      "billetterie": "https://billetterie.amiensfootball.com/",
+      "source": "https://thefootdata.com/matchs/55670186-amiens-scf-sm-caen",
+      "statut": "TheFootData (données FFF) · Ligue 3 (ex-National) · billetterie : page d'accueil du club"
+    },
+    {
+      "id": "amiens-sc-55670203",
+      "club": "Amiens SC",
+      "match": "Amiens SC - Paris 13 Atletico",
+      "date": "2026-12-12T14:45:00+01:00",
+      "lieu": "Stade Crédit Agricole la Licorne, Amiens",
+      "billetterie": "https://billetterie.amiensfootball.com/",
+      "source": "https://thefootdata.com/matchs/55670203-amiens-scf-paris-13-atletico",
+      "statut": "TheFootData (données FFF) · Ligue 3 (ex-National) · billetterie : page d'accueil du club"
+    },
+    {
+      "id": "amiens-sc-55670220",
+      "club": "Amiens SC",
+      "match": "Amiens SC - Fc Rouen 1899",
+      "date": "2027-01-23T14:45:00+01:00",
+      "lieu": "Stade Crédit Agricole la Licorne, Amiens",
+      "billetterie": "https://billetterie.amiensfootball.com/",
+      "source": "https://thefootdata.com/matchs/55670220-amiens-scf-fc-rouen-1899",
+      "statut": "TheFootData (données FFF) · Ligue 3 (ex-National) · billetterie : page d'accueil du club"
+    },
+    {
+      "id": "amiens-sc-55670243",
+      "club": "Amiens SC",
+      "match": "Amiens SC - Le Puy F. 43 Auvergn",
+      "date": "2027-02-06T14:45:00+01:00",
+      "lieu": "Stade Crédit Agricole la Licorne, Amiens",
+      "billetterie": "https://billetterie.amiensfootball.com/",
+      "source": "https://thefootdata.com/matchs/55670243-amiens-scf-le-puy-f-43-auvergn",
+      "statut": "TheFootData (données FFF) · Ligue 3 (ex-National) · billetterie : page d'accueil du club"
+    },
+    {
+      "id": "amiens-sc-55670262",
+      "club": "Amiens SC",
+      "match": "Amiens SC - Sc Bastia",
+      "date": "2027-02-20T14:45:00+01:00",
+      "lieu": "Stade Crédit Agricole la Licorne, Amiens",
+      "billetterie": "https://billetterie.amiensfootball.com/",
+      "source": "https://thefootdata.com/matchs/55670262-amiens-scf-sc-bastia",
+      "statut": "TheFootData (données FFF) · Ligue 3 (ex-National) · billetterie : page d'accueil du club"
+    },
+    {
+      "id": "amiens-sc-55670263",
+      "club": "Amiens SC",
+      "match": "Amiens SC - As Cannes",
+      "date": "2027-02-27T14:45:00+01:00",
+      "lieu": "Stade Crédit Agricole la Licorne, Amiens",
+      "billetterie": "https://billetterie.amiensfootball.com/",
+      "source": "https://thefootdata.com/matchs/55670263-amiens-scf-as-cannes",
+      "statut": "TheFootData (données FFF) · Ligue 3 (ex-National) · billetterie : page d'accueil du club"
+    },
+    {
+      "id": "amiens-sc-55670282",
+      "club": "Amiens SC",
+      "match": "Amiens SC - Qrm",
+      "date": "2027-03-13T14:45:00+01:00",
+      "lieu": "Stade Crédit Agricole la Licorne, Amiens",
+      "billetterie": "https://billetterie.amiensfootball.com/",
+      "source": "https://thefootdata.com/matchs/55670282-amiens-scf-qrm",
+      "statut": "TheFootData (données FFF) · Ligue 3 (ex-National) · billetterie : page d'accueil du club"
+    },
+    {
+      "id": "amiens-sc-55670301",
+      "club": "Amiens SC",
+      "match": "Amiens SC - Valenciennes Fc",
+      "date": "2027-03-27T14:45:00+01:00",
+      "lieu": "Stade Crédit Agricole la Licorne, Amiens",
+      "billetterie": "https://billetterie.amiensfootball.com/",
+      "source": "https://thefootdata.com/matchs/55670301-amiens-scf-valenciennes-fc",
+      "statut": "TheFootData (données FFF) · Ligue 3 (ex-National) · billetterie : page d'accueil du club"
+    },
+    {
+      "id": "amiens-sc-55670320",
+      "club": "Amiens SC",
+      "match": "Amiens SC - Sc Aubagne Air Bel",
+      "date": "2027-04-10T14:45:00+02:00",
+      "lieu": "Stade Crédit Agricole la Licorne, Amiens",
+      "billetterie": "https://billetterie.amiensfootball.com/",
+      "source": "https://thefootdata.com/matchs/55670320-amiens-scf-sc-aubagne-air-bel",
+      "statut": "TheFootData (données FFF) · Ligue 3 (ex-National) · billetterie : page d'accueil du club"
+    },
+    {
+      "id": "amiens-sc-55670339",
+      "club": "Amiens SC",
+      "match": "Amiens SC - Fbbp",
+      "date": "2027-04-24T14:45:00+02:00",
+      "lieu": "Stade Crédit Agricole la Licorne, Amiens",
+      "billetterie": "https://billetterie.amiensfootball.com/",
+      "source": "https://thefootdata.com/matchs/55670339-amiens-scf-fbbp",
+      "statut": "TheFootData (données FFF) · Ligue 3 (ex-National) · billetterie : page d'accueil du club"
+    },
+    {
+      "id": "amiens-sc-55670358",
+      "club": "Amiens SC",
+      "match": "Amiens SC - Us Concarneau",
+      "date": "2027-05-08T14:45:00+02:00",
+      "lieu": "Stade Crédit Agricole la Licorne, Amiens",
+      "billetterie": "https://billetterie.amiensfootball.com/",
+      "source": "https://thefootdata.com/matchs/55670358-amiens-scf-us-concarneau",
+      "statut": "TheFootData (données FFF) · Ligue 3 (ex-National) · billetterie : page d'accueil du club"
+    },
+    {
+      "id": "amiens-sc-55670377",
+      "club": "Amiens SC",
+      "match": "Amiens SC - Fleury 91 Fc",
+      "date": "2027-05-21T14:45:00+02:00",
+      "lieu": "Stade Crédit Agricole la Licorne, Amiens",
+      "billetterie": "https://billetterie.amiensfootball.com/",
+      "source": "https://thefootdata.com/matchs/55670377-amiens-scf-fleury-91-fc",
+      "statut": "TheFootData (données FFF) · Ligue 3 (ex-National) · billetterie : page d'accueil du club"
+    }
+  ]
 }
