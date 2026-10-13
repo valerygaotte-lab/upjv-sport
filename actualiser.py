@@ -2,16 +2,20 @@
 """
 UPJV SPORT - récupération automatique des événements (Gothiques d'Amiens et Amiens SC) -> evenements.json
 
-- Gothiques d'Amiens : lecture de la billetterie officielle (liste des événements puis page de chaque événement).
+- Gothiques d'Amiens : lecture de la billetterie officielle (cartes « Amiens | adversaire | date » de la liste des
+  événements, puis page de chaque événement pour la date exacte et la vente). Seuls les matchs À DOMICILE des Gothiques
+  sont publiés (les autres événements vendus par la billetterie, ex. matchs internationaux au Coliseum, sont ignorés).
 - Amiens SC (équipe première masculine, matchs À DOMICILE à la Licorne) : le site du club (amiensfootball.com)
-  n'affiche aucun calendrier (page chargée en JavaScript, aucun lien « matchs ») et sa billetterie interdit les
-  robots (robots.txt) ; la FFF bloque aussi les robots. Le calendrier est donc lu sur TheFootData, qui reprend les
-  données de l'API de la FFF : date, heure, adversaire et terrain de chaque match. Rien n'est jamais deviné.
+  n'affiche aucun calendrier et sa billetterie interdit les robots (robots.txt) ; la FFF bloque aussi les robots.
+  Le calendrier est donc lu sur TheFootData, qui reprend les données de l'API de la FFF : date, heure, adversaire et
+  terrain de chaque match. Seuls les matchs dont le jour et l'heure sont programmés sont publiés (voir
+  AMIENS_SC_ONLY_CONFIRMED) ; les autres sont seulement comptés. Rien n'est jamais deviné.
 - Un ÉCHEC de récupération ne vide JAMAIS evenements.json : les événements déjà publiés et encore à venir sont
   conservés, et si toutes les sources échouent le fichier n'est pas modifié (le script se termine en erreur).
 - Matchs impossibles à lire automatiquement : les ajouter dans evenements_manuels.json.
 - Test de l'Amiens SC seul, sans modifier evenements.json : python3 actualiser.py --test-amiens
 - Si aucun match n'est trouvé, les journaux expliquent pourquoi et les pages lues sont enregistrées dans debug/.
+- Diagnostic (ce que renvoient réellement les sites, sans rien écrire) : python3 actualiser.py --diagnostic
 """
 
 from __future__ import annotations
@@ -24,7 +28,7 @@ import sys
 import time
 import unicodedata
 from collections import Counter
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib import robotparser
 from urllib.parse import urljoin, urlparse
@@ -61,6 +65,13 @@ REQUEST_DELAY = 1.0          # secondes entre deux pages lues sur la source
 # Lien de billetterie ajouté aux matchs de l'Amiens SC : la billetterie officielle du club. La source ne fournit pas de
 # lien de vente par match : ce lien mène donc à la page d'accueil de la billetterie. Mettre "" pour ne publier aucun bouton.
 AMIENS_SC_TICKET_LINK = AMIENS_SC_TICKETING
+# Matchs dont la date n'est pas encore confirmée : la FFF publie tout le calendrier de la saison dès l'été, chaque journée
+# à une date et une heure PAR DÉFAUT (en 2026-2027 : le samedi, ou le vendredi en fin de saison, à 14:45). Le jour et l'heure
+# réels ne sont fixés que quelques semaines avant. L'heure par défaut est reconnue automatiquement : c'est l'heure commune
+# à (presque) tous les matchs lointains, qui ne peuvent pas encore être programmés. Un match à cette heure-là n'est pas publié.
+AMIENS_SC_ONLY_CONFIRMED = True
+PROVISIONAL_HORIZON = timedelta(days=45)  # au-delà, un match n'est normalement pas encore programmé
+AMIENS_SC_STATS: dict = {}                # informations sur la dernière lecture, recopiées dans evenements.json (sources)
 
 
 def get_soup(url: str) -> BeautifulSoup | None:
@@ -161,13 +172,22 @@ def _gothiques_cards(soup: BeautifulSoup, base: str) -> dict[str, list[list[str]
     return cards
 
 
-def gothiques_opponent(title: str) -> str:
-    """Adversaire lu dans un titre « Amiens - Rouen » / « Gothiques vs Rouen » ; "" si le titre n'est pas de cette forme."""
-    teams = re.split(r"\s+(?:[-–—]|vs\.?|contre)\s+", title, maxsplit=1, flags=re.I)
-    if len(teams) != 2:
-        return ""
-    home = _fold(teams[0])
-    return normalize(teams[1]) if ("amiens" in home or "gothiques" in home) else ""
+# Date d'une carte de la liste : « Ven 16 Oct, 20h15 »
+GOTHIQUES_CARD_DATE_RE = re.compile(r"^(lun|mar|mer|jeu|ven|sam|dim)\w*\.?\s+\d{1,2}\s+\w+\.?,?\s+\d{1,2}h\d{2}$", re.I)
+
+
+def gothiques_teams(cards: list[list[str]]) -> tuple[str, str] | None:
+    """(équipe qui reçoit, équipe visiteuse) lues sur la carte « Amiens | Marseille | LIGUE MAGNUS | … | Ven 16 Oct, 20h15 | … »,
+    ou None si aucune carte de l'événement n'a cette forme."""
+    for lines in cards:
+        if len(lines) >= 3 and any(GOTHIQUES_CARD_DATE_RE.match(line) for line in lines):
+            return lines[0], lines[1]
+    return None
+
+
+def is_amiens(team: str) -> bool:
+    folded = _fold(team)
+    return "amiens" in folded or "gothiques" in folded
 
 
 def scrape_gothiques(previous: dict[str, dict] | None = None) -> list[dict] | None:
@@ -178,11 +198,10 @@ def scrape_gothiques(previous: dict[str, dict] | None = None) -> list[dict] | No
     if not listing:
         return None  # échec : l'appelant conserve les événements déjà publiés
 
-    detail_urls = set()
-    for a in listing.find_all("a", href=True):
-        href = urljoin(GOTHIQUES_TICKETING, a["href"])
-        if "billetterie.lesgothiques.com" in urlparse(href).netloc and re.search(r"/fr/evenement/\d+/details", href):
-            detail_urls.add(href.split("?")[0])
+    # Chaque événement a une carte « Amiens | Marseille | … » dans la liste « Évènement(s) à venir ».
+    # (La page /fr/calendrier est remplie en JavaScript : elle ne contient aucun événement lisible.)
+    cards = _gothiques_cards(listing, GOTHIQUES_TICKETING)
+    detail_urls = set(cards)
 
     if not detail_urls:
         had_events = any(
@@ -200,8 +219,20 @@ def scrape_gothiques(previous: dict[str, dict] | None = None) -> list[dict] | No
 
     events = []
     unreadable = []  # pages de détail injoignables : on garde la version précédente de l'événement
-    for url in sorted(detail_urls):
+    with_teams = 0
+    for url in sorted(detail_urls, key=lambda u: int(u.rstrip("/").split("/")[-2])):
         event_id = f"gothiques-{url.rstrip('/').split('/')[-2]}"
+        teams = gothiques_teams(cards[url])
+        if not teams:
+            logging.info("Gothiques : événement %s ignoré (équipes non indiquées sur la billetterie).", url)
+            continue
+        with_teams += 1
+        home, away = teams
+        if not is_amiens(home):
+            # Autres événements vendus par la billetterie (matchs internationaux au Coliseum, matchs à l'extérieur…) :
+            # ce ne sont pas des matchs à domicile des Gothiques, on ne les publie pas sous leur nom.
+            logging.info("Gothiques : « %s - %s » ignoré (pas un match à domicile des Gothiques).", home, away)
+            continue
         soup = get_soup(url)
         if not soup:
             unreadable.append(event_id)
@@ -229,22 +260,23 @@ def scrape_gothiques(previous: dict[str, dict] | None = None) -> list[dict] | No
         if "amiens" not in page_text.lower() or "coliseum" not in page_text.lower():
             continue
 
-        title = soup.find("h1")
-        title_text = normalize(title.get_text(" ", strip=True)) if title else ""
-        if not title_text:
-            title_text = "Match des Gothiques d'Amiens"
-
         events.append({
             "id": event_id,
-            "club": "Gothiques d'Amiens",
-            "match": title_text,
-            "adversaire": gothiques_opponent(title_text),
+            "club": GOTHIQUES_CLUB,
+            "match": f"{GOTHIQUES_CLUB} - {away}",
+            "adversaire": away,
             "date": event_date.isoformat(),
             "lieu": "Coliseum, Amiens",
             "billetterie": url,
             "source": url,
             "statut": "billetterie détectée",
         })
+
+    if not with_teams:
+        # Des liens d'événements existent mais aucune carte n'est lisible : la mise en page a changé.
+        logging.error("Gothiques : %d événement(s) en lien mais aucune carte « équipe | équipe | date » reconnue "
+                      "(structure du site modifiée ?). Données précédentes conservées.", len(detail_urls))
+        return None
 
     for event_id in unreadable:
         old = previous.get(event_id)
@@ -271,6 +303,16 @@ FOOTDATA_DATE_RE = re.compile(r"\b(lun|mar|mer|jeu|ven|sam|dim)\.?\s+(\d{1,2})\s
 # Motifs de rejet qui trahissent une page illisible (et non un match légitimement écarté)
 STRUCTURAL_REJECTS = {"titre de la page illisible", "date non publiée", "date invalide", "terrain non publié",
                       "page du match injoignable"}
+
+
+# Sigles que la FFF écrit « Fc », « Sm », « Qrm »… : remis en majuscules pour l'affichage (le nom n'est pas modifié autrement).
+CLUB_ACRONYMS = {"ac", "aj", "ajc", "as", "asm", "ca", "cs", "ea", "es", "esa", "fc", "fbbp", "ogc", "ol", "om", "psg", "qrm",
+                 "rc", "sc", "scf", "sco", "sm", "us", "usc", "usco", "usl", "ust", "ffc", "afc", "cso", "sa", "ssa"}
+
+
+def club_name(name: str) -> str:
+    """« Sm Caen » -> « SM Caen », « Fc Rouen 1899 » -> « FC Rouen 1899 », « Qrm » -> « QRM »."""
+    return " ".join(w.upper() if w.lower().strip(".") in CLUB_ACRONYMS else w for w in normalize(name).split(" "))
 
 
 def parse_iso(value: object) -> datetime | None:
@@ -312,6 +354,27 @@ def _save_debug(name: str, soup: BeautifulSoup) -> None:
         logging.warning("Impossible d'enregistrer %s : %s", name, exc)
 
 
+def _previous_sources() -> dict:
+    try:
+        data = json.loads(OUTPUT.read_text(encoding="utf-8"))
+        return data.get("sources", {}) if isinstance(data, dict) and isinstance(data.get("sources"), dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def default_kickoff(candidates: list[dict], now: datetime) -> tuple[int, int] | None:
+    """Heure « par défaut » de la FFF : celle d'au moins 75 % des matchs à plus de 45 jours (au moins 3 matchs).
+    Sinon, celle reconnue lors de la lecture précédente (fin de saison : trop peu de matchs lointains pour la reconnaître)."""
+    far = [(c["when"].hour, c["when"].minute) for c in candidates if c["time_known"] and c["when"] - now > PROVISIONAL_HORIZON]
+    if len(far) >= 3:
+        (hour_minute, count), = Counter(far).most_common(1)
+        if count / len(far) >= 0.75:
+            return hour_minute
+    saved = str(_previous_sources().get(AMIENS_SC_CLUB, {}).get("horaire_par_defaut", ""))
+    found = re.fullmatch(r"(\d{2}):(\d{2})", saved)
+    return (int(found.group(1)), int(found.group(2))) if found else None
+
+
 def _amiens_failure(reason: str) -> None:
     """Échec de récupération : on explique pourquoi (main() conserve les matchs déjà publiés)."""
     kept = len(_previous_amiens_events())
@@ -347,7 +410,7 @@ def _parse_footdata_match(soup: BeautifulSoup) -> tuple[dict | None, str]:
     teams = re.split(r"\s+[–—-]\s+", heading, maxsplit=1)
     if len(teams) != 2:
         return None, "titre de la page illisible"
-    home, away = normalize(teams[0]), normalize(teams[1])
+    home, away = normalize(teams[0]), club_name(teams[1])
     if not _fold(home).startswith("amiens"):
         return None, "match à l'extérieur"
     text = soup.get_text("\n")
@@ -442,7 +505,7 @@ def scrape_amiens_sc() -> list[dict] | None:
         return _amiens_failure("aucun lien de match n'a été reconnu sur la page de l'équipe (mise en page modifiée, ou page vide)")
 
     previous = {e.get("id"): e for e in _previous_amiens_events()}
-    events, rejected, saved_debug = [], Counter(), False
+    events, candidates, rejected, saved_debug = [], [], Counter(), False
     for match_id, url in sorted(to_play.items()):
         time.sleep(REQUEST_DELAY)
         if _robots_allows(url) is False:
@@ -468,25 +531,50 @@ def scrape_amiens_sc() -> list[dict] | None:
         if not future_date(info["when"]):
             rejected["match déjà passé"] += 1
             continue
+        candidates.append({**info, "id": event_id, "url": url})
+
+    # Date confirmée = heure de coup d'envoi publiée et différente de l'heure par défaut de la FFF.
+    default = default_kickoff(candidates, now)
+    if default:
+        logging.info("Amiens SC : heure par défaut de la FFF reconnue : %02d:%02d (matchs pas encore programmés).", *default)
+    provisional = []
+    for info in candidates:
+        confirmed = info["time_known"] and (info["when"].hour, info["when"].minute) != default
+        if not confirmed and AMIENS_SC_ONLY_CONFIRMED:
+            provisional.append(info)
+            continue
         label = "TheFootData (données FFF)" + (f" · {info['competition']}" if info["competition"] else "")
         events.append({
-            "id": event_id,
+            "id": info["id"],
             "club": AMIENS_SC_CLUB,
             "match": f"Amiens SC - {info['away']}",
             "adversaire": info["away"],
             "date": info["when"].isoformat(),
             "lieu": AMIENS_SC_VENUE,
             "billetterie": AMIENS_SC_TICKET_LINK,
-            "source": url,
-            "statut": label + ("" if info["time_known"] else " · horaire à confirmer")
+            "source": info["url"],
+            "statut": label + ("" if confirmed else " · date et horaire à confirmer")
                       + (" · billetterie : page d'accueil du club" if AMIENS_SC_TICKET_LINK else ""),
         })
+    if provisional:
+        logging.info("Amiens SC : %d match(s) à domicile au calendrier mais pas encore programmé(s), non publiés : %s",
+                     len(provisional), ", ".join(f"{p['when']:%d/%m} {p['away']}" for p in provisional))
+    AMIENS_SC_STATS.clear()
+    AMIENS_SC_STATS.update({
+        "a_confirmer": len(provisional),
+        "prochain_a_confirmer": min((p["when"] for p in provisional), default=None),
+        "horaire_par_defaut": f"{default[0]:02d}:{default[1]:02d}" if default else "",
+    })
+    if AMIENS_SC_STATS["prochain_a_confirmer"]:
+        AMIENS_SC_STATS["prochain_a_confirmer"] = AMIENS_SC_STATS["prochain_a_confirmer"].date().isoformat()
 
     if rejected:
         logging.info("Amiens SC : %d match(s) à domicile écarté(s) : %s", sum(rejected.values()),
                      ", ".join(f"{n} × {why}" for why, n in rejected.items()))
-    logging.info("Amiens SC : %d match(s) à domicile détecté(s)", len(events))
-    if not events and to_play:
+    logging.info("Amiens SC : %d match(s) à domicile à date confirmée détecté(s)", len(events))
+    if not events and provisional:
+        logging.warning("Amiens SC : aucun match à domicile programmé pour l'instant ; %d au calendrier, dates à confirmer.", len(provisional))
+    elif not events and to_play:
         if any(why in STRUCTURAL_REJECTS for why in rejected):
             return _amiens_failure("des matchs à jouer ont été trouvés mais leurs pages n'ont pas pu être lues "
                                    "(mise en page de TheFootData modifiée ?) : " + ", ".join(rejected))
@@ -560,6 +648,8 @@ def main() -> int:
         else:
             events.extend(found)
             sources[club] = {"ok": True, "trouves": len(found)}
+            if club == AMIENS_SC_CLUB:
+                sources[club].update(AMIENS_SC_STATS)
 
     if not any(info["ok"] for info in sources.values()):
         logging.error("Toutes les sources ont échoué : %s n'est PAS modifié.", OUTPUT.name)
@@ -684,6 +774,7 @@ if __name__ == "__main__":
             sys.exit(1)
         for event in found:
             print(f"{event['date'][:16]} | {event['match']} | {event['lieu']} | {event['statut']}")
-        print(f"=> {len(found)} match(s) de l'Amiens SC détecté(s)")
+        print(f"=> {len(found)} match(s) de l'Amiens SC à date confirmée détecté(s) ; "
+              f"{AMIENS_SC_STATS.get('a_confirmer', 0)} autre(s) au calendrier, date à confirmer (non publiés)")
     else:
         sys.exit(main())

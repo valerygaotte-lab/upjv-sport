@@ -820,15 +820,16 @@ body.view-foot .classe-font .dropbtn::after, body.view-padel .classe-font .dropb
     ];
 
     // Source des événements : fichier evenements.json, relu à chaque chargement de la page puis toutes les 10 minutes.
-    // evenements.json est publié avec le site sur GitHub Pages (mis à jour par actualiser.py).
-    const PUBLISHED_SITE = "https://valerygaotte-lab.github.io/upjv-sport/";
+    // evenements.json est mis à jour toutes les 6 h dans le dépôt GitHub par actualiser.py (GitHub Actions).
     const urlOf = (rel, base) => { try { return new URL(rel, base).href; } catch (e) { return ""; } };
     // Aperçus (Claude, fichier local…) : evenements.json n'existe pas à côté de la page, inutile de l'y chercher.
     const IN_PREVIEW = !/^https?:$/.test(location.protocol) || /(^|\.)(claudeusercontent\.com|claude\.ai)$/.test(location.hostname);
-    // Adresse exacte du fichier publié ; en secours, evenements.json à côté de la page (hébergement classique). Sur GitHub Pages les deux sont identiques : une seule lecture.
-    const EVENTS_URL = "https://valerygaotte-lab.github.io/upjv-sport/evenements.json";
+    // 1) Le fichier tel qu'il est dans le dépôt GitHub (branche main) : toujours la dernière version écrite par le workflow,
+    //    quel que soit l'hébergeur du site (Netlify, GitHub Pages, fichier ouvert en local…). Le dépôt doit rester public.
+    // 2) En secours, evenements.json à côté de la page (copie publiée avec le site). La version la plus récente des deux est affichée.
+    const EVENTS_URL = "https://raw.githubusercontent.com/valerygaotte-lab/upjv-sport/main/evenements.json";
     const EVENTS_SOURCES = [
-      { label: "site publié (GitHub Pages)", url: EVENTS_URL },
+      { label: "dépôt GitHub", url: EVENTS_URL },
       IN_PREVIEW ? null : { label: "page actuelle", url: urlOf("evenements.json", window.location.href) }
     ].filter((src, i, all) => src && src.url && all.findIndex((t) => t && t.url === src.url) === i);
     const LOG = "[UPJV SPORT · événements] ";
@@ -899,12 +900,25 @@ body.view-foot .classe-font .dropbtn::after, body.view-padel .classe-font .dropb
         return p;
       }
 
+      // Matchs au calendrier officiel dont le jour et l'heure ne sont pas encore fixés (non affichés pour ne rien inventer).
+      function pendingText(src, hasMatches) {
+        const n = src && src.ok === true ? Number(src.a_confirmer) || 0 : 0;
+        if (!n) return "";
+        const d = src.prochain_a_confirmer ? new Date(src.prochain_a_confirmer + "T12:00:00") : null;
+        const next = d && !isNaN(d) ? " Prochain : week-end du " + d.toLocaleDateString("fr-FR", { day: "numeric", month: "long" }) + "." : "";
+        return (hasMatches ? (n > 1 ? n + " autres matchs" : "1 autre match") : (n > 1 ? n + " matchs" : "1 match"))
+          + " à domicile " + (n > 1 ? "figurent" : "figure") + " au calendrier officiel, mais leur date et leur horaire ne sont pas encore confirmés : "
+          + (n > 1 ? "ils s'afficheront" : "il s'affichera") + " ici dès qu'ils seront programmés." + next;
+      }
+      function clubSource(c) { return state && state.sources ? state.sources[c.name] : null; }
+
       // Aucun match pour un club : on distingue « la lecture automatique a échoué » de « la source n'annonce aucun match ».
       function emptyNote(c) {
         const p = mk("p", "note");
-        const src = state && state.sources ? state.sources[c.name] : null;
+        const src = clubSource(c);
         let txt;
-        if (src && src.ok === false) txt = "Le calendrier de ce club n'a pas pu être relu automatiquement lors de la dernière actualisation : cela ne signifie pas qu'il n'y a aucun match. Consulte la billetterie officielle.";
+        if (pendingText(src, false)) txt = pendingText(src, false);
+        else if (src && src.ok === false) txt = "Le calendrier de ce club n'a pas pu être relu automatiquement lors de la dernière actualisation : cela ne signifie pas qu'il n'y a aucun match. Consulte la billetterie officielle.";
         else if (src && src.ok === true) txt = "Aucun match à domicile à venir n'est annoncé dans la source consultée (le calendrier n'est peut-être pas encore publié). Consulte la billetterie officielle.";
         else txt = "Aucun match à venir annoncé pour ce club. Consulte la billetterie officielle.";
         p.append(document.createTextNode(txt + " "));
@@ -932,7 +946,11 @@ body.view-foot .classe-font .dropbtn::after, body.view-padel .classe-font .dropb
           const club = mk("div", "club"); club.append(banner(g.club));
           if (!state) club.append(mk("p", "note", "Événements indisponibles pour le moment."));
           else if (!g.list.length) club.append(emptyNote(g.club));
-          else g.list.forEach((ev) => club.append(poster(ev)));
+          else {
+            g.list.forEach((ev) => club.append(poster(ev)));
+            const more = pendingText(clubSource(g.club), true);
+            if (more) club.append(mk("p", "note", more));
+          }
           out.push(club);
         });
         box.replaceChildren(...out);
@@ -994,8 +1012,8 @@ body.view-foot .classe-font .dropbtn::after, body.view-padel .classe-font .dropb
           draw("L'actualisation automatique a échoué : les événements affichés peuvent ne plus être à jour.");
         } else {
           status.textContent = "Événements indisponibles";
-          const hint = IN_PREVIEW ? " Cet aperçu bloque peut-être les chargements externes : ouvre le site publié (" + PUBLISHED_SITE + ")." : " Réessaie dans quelques minutes.";
-          if (IN_PREVIEW) console.error(LOG + "Page ouverte dans un aperçu (« " + location.origin + " ») : le navigateur ou l'aperçu peut bloquer les requêtes vers d'autres sites. Teste sur " + PUBLISHED_SITE);
+          const hint = IN_PREVIEW ? " Cet aperçu bloque peut-être les chargements externes : ouvre le site publié." : " Réessaie dans quelques minutes.";
+          if (IN_PREVIEW) console.error(LOG + "Page ouverte dans un aperçu (« " + location.origin + " ») : le navigateur ou l'aperçu peut bloquer les requêtes vers " + EVENTS_URL);
           draw("Impossible de charger les événements pour le moment. Les matchs ne sont pas affichés et ne sont pas mis à jour (détail dans la console du navigateur, touche F12)." + hint);
         }
       }
