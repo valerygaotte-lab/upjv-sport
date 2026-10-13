@@ -1000,7 +1000,7 @@ body.view-foot .classe-font .dropbtn::after, body.view-padel .classe-font .dropb
           state = { events: unique(best.events), updated: best.updated, sources: best.sources };
           best.warnings.forEach((w) => console.warn(LOG + "Avertissement du script de mise à jour : " + w));
           const label = updatedLabel();
-          status.textContent = (label ? "Dernière actualisation : " + label : "Date de dernière actualisation non indiquée") + (best.warnings.length ? " — certaines sources n'ont pas pu être relues" : "");
+          status.textContent = (label ? "Dernière actualisation : " + label : "Date de dernière actualisation non disponible (le fichier des événements n'a pas encore été actualisé)") + (best.warnings.length ? " — certaines sources n'ont pas pu être relues" : "");
           try { draw(); } catch (e) { console.error(LOG + "Erreur d'affichage : ", e); }
           return;
         }
