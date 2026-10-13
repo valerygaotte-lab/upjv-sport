@@ -1,0 +1,46 @@
+<!-- Supabase › Authentication › Emails › « Confirm signup ». Sujet : Confirme ton inscription à UPJV SPORT -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light only">
+<title>Confirme ton inscription</title>
+</head>
+<body style="margin:0;padding:0;background:#0b1730;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0b1730;">
+  <tr><td align="center" style="padding:32px 12px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;background:#082d5b;border-left:6px solid #e10600;">
+      <tr><td style="background:#05101f;padding:22px 30px;border-bottom:3px solid #e10600;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td style="padding-right:14px;"><img src="https://raw.githubusercontent.com/valerygaotte-lab/upjv-sport/main/emails/logo-upjv-sport.png" width="48" height="56" alt="UPJV SPORT" style="display:block;border:0;"></td>
+          <td style="font-family:'Arial Black',Arial,Helvetica,sans-serif;font-size:22px;font-weight:900;letter-spacing:2px;color:#ffffff;">UPJV <span style="color:#e10600;">SPORT</span></td>
+        </tr></table>
+      </td></tr>
+      <tr><td style="padding:34px 30px 8px;font-family:Arial,Helvetica,sans-serif;">
+        <p style="margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:#e10600;">Bouge — Rencontre — Partage</p>
+        <h1 style="margin:0 0 18px;font-family:'Arial Black',Arial,Helvetica,sans-serif;font-size:28px;line-height:1.15;font-weight:900;text-transform:uppercase;color:#ffffff;">Bienvenue dans l'équipe&nbsp;!</h1>
+        <p style="margin:0 0 14px;font-size:16px;line-height:1.6;color:#dfe7f5;">Merci pour ton inscription sur UPJV SPORT, le site pour trouver ton partenaire sportif à l'UPJV.</p>
+        <p style="margin:0 0 26px;font-size:16px;line-height:1.6;color:#dfe7f5;">Il ne reste qu'une étape : confirme ton adresse e-mail pour activer ton compte et inscrire ton équipe aux matchs classés de foot et de padel.</p>
+      </td></tr>
+      <tr><td align="left" style="padding:0 30px 30px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td style="background:#e10600;border-radius:28px;">
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:15px 34px;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:800;color:#ffffff;text-decoration:none;border-radius:28px;">Confirmer mon inscription</a>
+          </td>
+        </tr></table>
+      </td></tr>
+      <tr><td style="padding:0 30px 30px;font-family:Arial,Helvetica,sans-serif;">
+        <p style="margin:0 0 6px;font-size:13px;line-height:1.5;color:#8fb3e0;">Le bouton ne fonctionne pas ? Copie ce lien dans ton navigateur :</p>
+        <p style="margin:0;font-size:12px;line-height:1.5;word-break:break-all;"><a href="{{ .ConfirmationURL }}" style="color:#ffffff;">{{ .ConfirmationURL }}</a></p>
+        <p style="margin:18px 0 0;font-size:13px;line-height:1.5;color:#8fb3e0;">Tu n'as pas créé de compte sur UPJV SPORT ? Ignore simplement cet e-mail.</p>
+      </td></tr>
+      <tr><td style="background:#05101f;padding:18px 30px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.5;color:#aeb9d0;">
+        UPJV SPORT · Projet étudiant · IUT d'Amiens<br>
+        Contact : <a href="mailto:valery.gaotte@gmail.com" style="color:#ffffff;">valery.gaotte@gmail.com</a> · <a href="mailto:walidfouilah80@gmail.com" style="color:#ffffff;">walidfouilah80@gmail.com</a>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>

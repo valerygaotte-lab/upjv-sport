@@ -557,6 +557,16 @@ body.view-foot .classe-font .dropbtn::after, body.view-padel .classe-font .dropb
 .cl-status { margin-top: 18px; font-size: 15px; line-height: 1.5; }
 .cl-status.ok { color: #7dffb0; }
 .cl-status.err { color: #ffb0b0; }
+/* Inscriptions Classé réservées aux membres connectés */
+body:not(.logged-in) .cl-form { display: none; }
+body.logged-in .cl-lock { display: none; }
+.cl-lock { padding: 34px; background: rgba(4, 8, 36, 0.72); border: 1px solid rgba(255,255,255,0.18); backdrop-filter: blur(8px); font-size: 17px; line-height: 1.6; color: #dfe7f5; }
+.cl-lock-title { margin-bottom: 8px; font-size: 22px; font-weight: 900; text-transform: uppercase; color: white; }
+.cl-lock-btns { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 24px; margin-top: 8px; }
+.cl-lock-btns .cl-submit { width: auto; padding: 15px 34px; text-align: center; text-decoration: none; }
+.cl-lock-alt { color: white; font-weight: 800; text-decoration: none; border-bottom: 2px solid currentColor; }
+#classe-foot .cl-lock { border-top: 3px solid #2bd9ff; }
+#classe-padel .cl-lock { border-top: 3px solid #d4ff2a; }
 .cl-check { display: flex; gap: 12px; align-items: flex-start; margin-top: 22px; font-size: 15px; line-height: 1.45; color: #dfe7f5; cursor: pointer; }
 .cl-check input { flex: none; width: 20px; height: 20px; margin-top: 2px; cursor: pointer; }
 /* Pages « Classement » (foot) et « Tableau » (padel) : même section, donc même fond que l'inscription */
@@ -828,6 +838,11 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
       <h1>Football</h1>
       <div class="cl-sub">Inscription des équipes</div>
       <p class="cl-lead">Choisis ta catégorie, donne le nom de ton équipe et ajoute tes joueurs avec leur nom et leur prénom.</p>
+      <div class="cl-lock">
+        <p class="cl-lock-title">🔒 Réservé aux membres</p>
+        <p>Pour inscrire ton équipe aux matchs classés, crée ton compte ou connecte-toi.</p>
+        <div class="cl-lock-btns"><a href="#" class="cl-submit" data-open="modal-signup">S'inscrire</a><a href="#" class="cl-lock-alt" data-open="modal-login">J'ai déjà un compte</a></div>
+      </div>
       <form class="cl-form" id="form-foot" name="inscription-foot" method="POST" data-netlify="true" netlify-honeypot="bot-field">
         <input type="hidden" name="form-name" value="inscription-foot">
         <p hidden><label>Ne pas remplir : <input name="bot-field"></label></p>
@@ -844,6 +859,7 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
         <p class="cl-hint" id="foot-hint">Choisis d'abord une catégorie pour afficher les lignes joueurs.</p>
         <div id="foot-rows"></div>
         <input type="hidden" name="joueurs" id="foot-joueurs">
+        <input type="hidden" name="compte" class="cl-account">
         <label class="cl-check"><input type="checkbox" name="prerequis" value="Tous les joueurs ont déjà joué au moins un match de five" required><span>Je confirme que <b>chaque joueur</b> de l'équipe a déjà joué <b>au moins un match de five</b> (obligatoire pour les matchs classés).</span></label>
         <button type="submit" class="cl-submit">Inscrire mon équipe</button>
         <div class="cl-status" id="foot-status" role="status"></div>
@@ -866,6 +882,11 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
       <h1>Pad<span>el</span></h1>
       <div class="cl-sub">Inscription au tournoi</div>
       <p class="cl-lead">Choisis ton tournoi, puis inscris ton nom ou celui de ton duo avec le nom et le prénom des joueurs.</p>
+      <div class="cl-lock">
+        <p class="cl-lock-title">🔒 Réservé aux membres</p>
+        <p>Pour inscrire ton duo ou toi-même aux matchs classés, crée ton compte ou connecte-toi.</p>
+        <div class="cl-lock-btns"><a href="#" class="cl-submit" data-open="modal-signup">S'inscrire</a><a href="#" class="cl-lock-alt" data-open="modal-login">J'ai déjà un compte</a></div>
+      </div>
       <form class="cl-form" id="form-padel" name="inscription-padel" method="POST" data-netlify="true" netlify-honeypot="bot-field">
         <input type="hidden" name="form-name" value="inscription-padel">
         <p hidden><label>Ne pas remplir : <input name="bot-field"></label></p>
@@ -881,6 +902,7 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
         <p class="cl-hint" id="padel-hint">Choisis d'abord un tournoi pour afficher les lignes joueurs.</p>
         <div id="padel-rows"></div>
         <input type="hidden" name="joueurs" id="padel-joueurs">
+        <input type="hidden" name="compte" class="cl-account">
         <label class="cl-check"><input type="checkbox" name="prerequis" value="Tous les joueurs ont déjà joué au moins un match de padel" required><span>Je confirme que <b>chaque joueur</b> inscrit a déjà joué <b>au moins un match de padel</b> (obligatoire pour les matchs classés).</span></label>
         <button type="submit" class="cl-submit">M'inscrire</button>
         <div class="cl-status" id="padel-status" role="status"></div>
@@ -1244,6 +1266,9 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
       function showUser(user) {
         const btn = document.querySelector(".actions .login"), hero = document.querySelector(".hero-buttons .btn-primary");
         const meta = (user && user.user_metadata) || {};
+        window.UPJV_USER = user || null;
+        document.body.classList.toggle("logged-in", !!user);
+        document.querySelectorAll(".cl-account").forEach((i) => { i.value = user ? user.email : ""; });
         if (user) {
           btn.textContent = "Mon compte" + (meta.prenom ? " · " + meta.prenom : ""); btn.dataset.open = "modal-account";
           if (hero) { hero.textContent = "Mon compte"; hero.dataset.open = "modal-account"; }
@@ -1447,6 +1472,7 @@ body.sub-rank .cl > .cl-inner:not(.cl-rank) { display: none; }
       board("foot"); board("padel"); loadTeams();
 
       async function send(form, status, btn, done) {
+        if (!window.UPJV_USER) { status.className = "cl-status err"; status.textContent = "Connecte-toi pour inscrire ton équipe."; return; }
         status.className = "cl-status"; status.textContent = ""; btn.disabled = true;
         try {
           const body = new URLSearchParams(new FormData(form)).toString();
