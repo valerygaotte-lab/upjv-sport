@@ -566,7 +566,60 @@ def main() -> int:
     return 0
 
 
+def diagnostic() -> int:
+    """Affiche ce que renvoient réellement les sources (statut HTTP, robots.txt, liens utiles, extraits) sans rien écrire."""
+    def show(url: str, link_words: tuple[str, ...] = ()) -> BeautifulSoup | None:
+        print(f"\n===== {url}")
+        print(f"robots.txt autorise : {_robots_allows(url)}")
+        try:
+            response = SESSION.get(url, timeout=TIMEOUT)
+        except requests.RequestException as exc:
+            print(f"ERREUR réseau : {exc}")
+            return None
+        print(f"HTTP {response.status_code} · {len(response.text)} caractères · URL finale {response.url}")
+        print("En-têtes : " + ", ".join(f"{k}={response.headers.get(k)}" for k in ("content-type", "server", "x-powered-by") if response.headers.get(k)))
+        soup = BeautifulSoup(response.text, "html.parser")
+        print(f"<title> : {normalize(soup.title.get_text()) if soup.title else '-'}")
+        meta = soup.find("meta", attrs={"name": "description"})
+        print(f"description : {normalize(meta.get('content', '')) if meta else '-'}")
+        links = [(normalize(a.get_text(' ', strip=True)), a["href"]) for a in soup.find_all("a", href=True)]
+        print(f"{len(links)} lien(s)")
+        shown = 0
+        for label, href in links:
+            if link_words and not any(w in (_fold(label) + " " + href.lower()) for w in link_words):
+                continue
+            print(f"  lien : {label[:90]!r} -> {href[:160]}")
+            shown += 1
+            if shown >= 60:
+                break
+        for tag in soup.find_all("script", src=False)[:40]:
+            content = tag.string or ""
+            if any(w in content for w in ("__NEXT_DATA__", "match", "fixture", "rencontre")) or tag.get("type") in ("application/ld+json", "application/json"):
+                print(f"  script {tag.get('type') or ''} {tag.get('id') or ''} : {normalize(content)[:600]}")
+        text = soup.get_text("\n")
+        lines = [normalize(line) for line in text.split("\n") if normalize(line)]
+        print("Texte (début) : " + " | ".join(lines[:120])[:3000])
+        return soup
+
+    now = datetime.now(PARIS)
+    season = now.year if now.month >= 7 else now.year - 1
+    team = show(f"{FOOTDATA_BASE}/clubs/amiens-sporting-club-football?equipe={FOOTDATA_TEAM}&saison={season}", ("matchs/", "jouer", "calendrier"))
+    if team:
+        home = [a["href"] for a in team.find_all("a", href=True) if re.search(r"/matchs/\d+-amiens", a["href"])]
+        for href in home[-3:]:
+            page = show(urljoin(FOOTDATA_BASE, href))
+            if page:
+                info, why = _parse_footdata_match(page)
+                print(f"=> analyse : {info or why}")
+    show("https://www.amiensfootball.com/", ("match", "calendrier", "billet", "ticket", "equipe"))
+    show(AMIENS_SC_TICKETING, ("match", "billet", "event", "evenement", "manifestation", "achat"))
+    show(GOTHIQUES_TICKETING, ("evenement",))
+    return 0
+
+
 if __name__ == "__main__":
+    if "--diagnostic" in sys.argv:
+        sys.exit(diagnostic())
     if "--test-amiens" in sys.argv:
         # Test de la récupération de l'Amiens SC seule : affiche les matchs détectés, ne modifie pas evenements.json.
         found = scrape_amiens_sc()

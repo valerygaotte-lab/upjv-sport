@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "0 */6 * * *"   # toutes les six heures
   workflow_dispatch:         # lancement manuel : onglet Actions > Actualiser les événements > Run workflow
+    inputs:
+      diagnostic:
+        description: "Afficher aussi ce que renvoient les sites sources (pour comprendre un échec)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -27,6 +32,11 @@ jobs:
 
       - name: Installer les dépendances
         run: pip install -r requirements.txt
+
+      - name: Diagnostic des sources (lancement manuel avec l'option cochée)
+        if: ${{ inputs.diagnostic }}
+        continue-on-error: true
+        run: python actualiser.py --diagnostic
 
       - name: Récupérer les événements (Gothiques d'Amiens et Amiens SC)
         run: python actualiser.py
