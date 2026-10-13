@@ -1,0 +1,4 @@
+{
+  "_aide": "Ajoute ici les matchs que le script ne peut pas lire tout seul (ex. Amiens SC). Un match = un bloc entre accolades dans la liste « evenements », avec : club, match, date (AAAA-MM-JJTHH:MM, heure de Paris), lieu, billetterie (lien https officiel, facultatif). Ne recopie que des informations vérifiées sur le site officiel du club. Les matchs passés disparaissent tout seuls.",
+  "evenements": []
+}

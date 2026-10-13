@@ -1,0 +1,61 @@
+name: Actualiser les événements
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # toutes les six heures
+  workflow_dispatch:         # lancement manuel : onglet Actions > Actualiser les événements > Run workflow
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: actualiser-evenements
+  cancel-in-progress: false
+
+jobs:
+  actualiser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Installer les dépendances
+        run: pip install -r requirements.txt
+
+      - name: Récupérer les événements (Gothiques d'Amiens et Amiens SC)
+        run: python actualiser.py
+
+      - name: Enregistrer les pages lues si un diagnostic a été produit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-pages-lues
+          path: debug/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Publier evenements.json s'il a changé
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add evenements.json
+          if git diff --cached --quiet; then
+            echo "evenements.json inchangé : rien à publier."
+          else
+            git commit -m "Actualisation automatique des événements"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            git push
+          fi
+
+      # Un push fait avec GITHUB_TOKEN ne relance pas toujours la publication GitHub Pages : on la demande explicitement.
+      - name: Relancer la publication GitHub Pages
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${GITHUB_REPOSITORY}/pages/builds"
