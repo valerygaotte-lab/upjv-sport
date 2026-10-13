@@ -820,7 +820,7 @@ body.view-foot .classe-font .dropbtn::after, body.view-padel .classe-font .dropb
     ];
 
     // Source des événements : fichier evenements.json, relu à chaque chargement de la page puis toutes les 10 minutes.
-    // evenements.json est mis à jour toutes les 6 h dans le dépôt GitHub par actualiser.py (GitHub Actions).
+    // evenements.json est mis à jour tous les 3 jours dans le dépôt GitHub par actualiser.py (GitHub Actions).
     const urlOf = (rel, base) => { try { return new URL(rel, base).href; } catch (e) { return ""; } };
     // Aperçus (Claude, fichier local…) : evenements.json n'existe pas à côté de la page, inutile de l'y chercher.
     const IN_PREVIEW = !/^https?:$/.test(location.protocol) || /(^|\.)(claudeusercontent\.com|claude\.ai)$/.test(location.hostname);

@@ -2,7 +2,7 @@ name: Actualiser les événements
 
 on:
   schedule:
-    - cron: "0 */6 * * *"   # toutes les six heures
+    - cron: "17 5 */3 * *"   # tous les 3 jours vers 7 h (heure de Paris) ; le 1er du mois relance le cycle
   workflow_dispatch:         # lancement manuel : onglet Actions > Actualiser les événements > Run workflow
     inputs:
       diagnostic:
