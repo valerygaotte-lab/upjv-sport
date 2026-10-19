@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-10-16T05:40:32.337395+00:00",
+  "updated_at": "2026-10-19T05:41:00.831929+00:00",
   "sources": {
     "Gothiques d'Amiens": {
       "ok": true,
-      "trouves": 3
+      "trouves": 2
     },
     "Amiens SC": {
       "ok": true,
@@ -15,17 +15,6 @@
   },
   "avertissements": [],
   "evenements": [
-    {
-      "id": "gothiques-7",
-      "club": "Gothiques d'Amiens",
-      "match": "Gothiques d'Amiens - Marseille",
-      "adversaire": "Marseille",
-      "date": "2026-10-16T20:15:00+02:00",
-      "lieu": "Coliseum, Amiens",
-      "billetterie": "https://billetterie.lesgothiques.com/fr/evenement/7/details",
-      "source": "https://billetterie.lesgothiques.com/fr/evenement/7/details",
-      "statut": "billetterie détectée"
-    },
     {
       "id": "gothiques-8",
       "club": "Gothiques d'Amiens",
