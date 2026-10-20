@@ -503,6 +503,14 @@ body.view-sports .menu .dropdown:not(.classe-font) > .dropbtn::after, body.view-
 .play-hint::after { content: ""; position: absolute; left: 27px; top: 20px; border-left: 20px solid white; border-top: 13px solid transparent; border-bottom: 13px solid transparent; }
 .autres-grid { margin-top: 8px; }
 .autres-grid[hidden] { display: none; }
+.foot-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; max-width: 1100px; margin: 8px auto 0; align-items: start; }
+.foot-cols[hidden] { display: none; }
+.foot-col h2 { margin-bottom: 16px; padding-bottom: 10px; border-bottom: 3px solid var(--red); font-family: Orbitron, "Arial Black", sans-serif; font-size: clamp(18px, 2.2vw, 26px); text-transform: uppercase; color: var(--navy); }
+.foot-col .gym { margin-bottom: 16px; }
+.foot-col .gym a + a { margin-left: 18px; }
+.gym-meta { font-size: 13px; color: #aeb9d0; }
+.foot-empty { padding: 20px 22px; background: rgba(255,255,255,0.75); border-left: 6px solid var(--red); font-size: 14px; line-height: 1.55; color: #374151; }
+@media (max-width: 900px) { .foot-cols { grid-template-columns: 1fr; } }
 
 .sports-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; max-width: 1100px; margin: 0 auto; }
 .sport-tile { position: relative; display: flex; flex-direction: column; justify-content: flex-end; aspect-ratio: 1 / 1; padding: 22px; overflow: hidden; color: white; text-decoration: none; background: linear-gradient(160deg, var(--navy), #05101f); border-bottom: 6px solid var(--red); box-shadow: 0 18px 40px rgba(5,16,31,0.30); transition: transform 0.25s, box-shadow 0.25s; }
@@ -1091,6 +1099,31 @@ body.view-hub .classe-font .dropbtn::after { content: ""; position: absolute; le
       <a href="#sport-ping-pong" class="sport-tile" style="--tile-img: url('images/sport-ping-pong.jpg')"><h2>Ping-pong</h2></a>
       <a href="#sport-combat" class="sport-tile" style="--tile-img: url('images/sport-combat.jpg')"><h2>Sports de combat</h2></a>
     </div>
+    <div class="foot-cols" id="foot-extra" hidden>
+      <section class="foot-col">
+        <h2>Foot à 5</h2>
+        <article class="gym">
+          <h3>Teams5 Amiens</h3>
+          <p>25 Rue Le Tintoret, 80080 Amiens</p>
+          <p class="gym-meta">6 terrains de foot à 5 en pelouse synthétique. Ouvert 7 jours sur 7, de 10 h à minuit. Réservation par téléphone : 03 75 14 01 30.</p>
+          <a href="https://www.google.com/maps/search/?api=1&amp;query=Teams5%20Amiens%2025%20Rue%20Le%20Tintoret%2080080%20Amiens" target="_blank" rel="noopener noreferrer">Voir sur le plan</a>
+          <a href="https://teams5-amiens.fr/" target="_blank" rel="noopener noreferrer">Site officiel</a>
+        </article>
+      </section>
+      <section class="foot-col">
+        <h2>Foot à 8</h2>
+        <p class="foot-empty">Aucun terrain de foot à 8 n'est confirmé pour le moment. Cette colonne sera complétée dès que des adresses seront vérifiées.</p>
+      </section>
+      <section class="foot-col">
+        <h2>Foot à 11</h2>
+        <article class="gym">
+          <h3>Stade Moulonguet</h3>
+          <p>122 Rue Louis Thuillier, 80000 Amiens</p>
+          <p class="gym-meta">Stade municipal à pelouse synthétique. Conditions d'accès et de réservation : à vérifier auprès de la Ville d'Amiens.</p>
+          <a href="https://www.google.com/maps/search/?api=1&amp;query=Stade%20Moulonguet%20122%20Rue%20Louis%20Thuillier%2080000%20Amiens" target="_blank" rel="noopener noreferrer">Voir sur le plan</a>
+        </article>
+      </section>
+    </div>
     <div class="muscu" id="muscu-extra" hidden>
       <div class="mc-tabs" role="tablist">
         <button type="button" class="mc-tab on" role="tab" aria-selected="true" data-mc="salles">Où s'entraîner</button>
@@ -1309,8 +1342,9 @@ body.view-hub .classe-font .dropbtn::after { content: ""; position: absolute; le
         document.getElementById("muscu-extra").hidden = !isMuscu;
         const key = id.slice(6), isAutres = key === "autres", sub = AUTRES_SUB.includes(key);
         document.getElementById("autres-extra").hidden = !isAutres;
+        document.getElementById("foot-extra").hidden = key !== "foot"; // Foot : où jouer à 5, à 8 et à 11
         const soon = document.getElementById("sport-detail-soon");
-        soon.hidden = isMuscu;
+        soon.hidden = isMuscu || key === "foot";
         soon.textContent = isAutres ? "Choisis ta discipline. D'autres sports arriveront bientôt." : "Cette page est en préparation : son contenu arrive bientôt.";
         const back = document.getElementById("sport-detail-back"); // retour vers la page d'où l'on vient
         back.setAttribute("href", sub ? "#sport-autres" : "#sports"); back.textContent = sub ? "Autres sports" : "Tous les sports";
