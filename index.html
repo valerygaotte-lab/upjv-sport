@@ -499,6 +499,8 @@ body.view-sports .menu .dropdown:not(.classe-font) > .dropbtn::after, body.view-
 .hub-back { position: absolute; top: 104px; left: 24px; z-index: 5; margin: 0; }
 .story > .back-btn, .sports-page > .back-btn { display: flex; width: fit-content; margin: 0 auto 26px calc(max(0px, (100% - 1100px) / 2)); }
 .story-photo { cursor: pointer; }
+.play-hint { position: absolute; left: 50%; top: 50%; z-index: 2; width: 68px; height: 68px; margin: -34px 0 0 -34px; border-radius: 50%; background: rgba(5,16,31,0.6); border: 2px solid rgba(255,255,255,0.85); pointer-events: none; }
+.play-hint::after { content: ""; position: absolute; left: 27px; top: 20px; border-left: 20px solid white; border-top: 13px solid transparent; border-bottom: 13px solid transparent; }
 .autres-grid { margin-top: 8px; }
 .autres-grid[hidden] { display: none; }
 
@@ -1267,9 +1269,18 @@ body.view-hub .classe-font .dropbtn::after { content: ""; position: absolute; le
     // Ce bloc est volontairement placé en premier : il fonctionne même si une autre partie du script échoue.
     // Relance les deux vidéos depuis le début ; à la fin elles restent figées sur leur dernière image
     // Un clic sur une vidéo (ou sa photo) la relance depuis le début
+    // Lecture d'une vidéo depuis le début. Si le navigateur bloque la lecture automatique (réglage de Safari, économie d'énergie),
+    // un bouton lecture s'affiche sur la photo : un clic lance alors la vidéo.
+    function startVideo(v) {
+      const box = v.parentElement;
+      const hint = (on) => { const old = box.querySelector(".play-hint"); if (!on && old) old.remove(); if (on && !old) { const h = document.createElement("span"); h.className = "play-hint"; box.append(h); } };
+      try {
+        v.pause(); v.currentTime = 0; const r = v.play();
+        if (r && r.then) r.then(() => hint(false)).catch(() => hint(true)); else hint(false);
+      } catch (e) { hint(true); }
+    }
     document.querySelectorAll(".story-photo").forEach((box) => box.addEventListener("click", () => {
-      const v = box.querySelector(".story-video"); if (!v) return;
-      try { v.pause(); v.currentTime = 0; const r = v.play(); if (r && r.catch) r.catch(() => {}); } catch (e) {}
+      const v = box.querySelector(".story-video"); if (v) startVideo(v);
     }));
     // Si une vidéo n'a pas pu se charger (réseau, serveur en retard), on réessaie une fois au lieu de la supprimer ; la photo reste affichée en attendant.
     function storyVideoError(v) {
@@ -1279,9 +1290,7 @@ body.view-hub .classe-font .dropbtn::after { content: ""; position: absolute; le
     }
     document.querySelectorAll(".story-video").forEach((v) => { v.addEventListener("error", () => storyVideoError(v)); if (v.error) storyVideoError(v); });
     function playStory() {
-      document.querySelectorAll(".story-video").forEach((v) => {
-        try { v.pause(); v.currentTime = 0; const r = v.play(); if (r && r.catch) r.catch(() => {}); } catch (e) {}
-      });
+      document.querySelectorAll(".story-video").forEach(startVideo);
     }
     // Affichage direct, sans dépendre de l'adresse de la page (fonctionne aussi dans un aperçu intégré)
     const VIEWS = { "histoire": "story", "classe-foot": "foot", "classe-padel": "padel", "classement-foot": "foot", "classement-padel": "padel", "sports": "sports", "classe": "hub" };
