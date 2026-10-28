@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-10-25T05:39:13.495518+00:00",
+  "updated_at": "2026-10-28T05:50:49.170929+00:00",
   "sources": {
     "Gothiques d'Amiens": {
       "ok": true,
-      "trouves": 2
+      "trouves": 1
     },
     "Amiens SC": {
       "ok": true,
@@ -15,17 +15,6 @@
   },
   "avertissements": [],
   "evenements": [
-    {
-      "id": "gothiques-8",
-      "club": "Gothiques d'Amiens",
-      "match": "Gothiques d'Amiens - Bordeaux",
-      "adversaire": "Bordeaux",
-      "date": "2026-10-25T18:00:00+01:00",
-      "lieu": "Coliseum, Amiens",
-      "billetterie": "https://billetterie.lesgothiques.com/fr/evenement/8/details",
-      "source": "https://billetterie.lesgothiques.com/fr/evenement/8/details",
-      "statut": "billetterie détectée"
-    },
     {
       "id": "amiens-sc-55670169",
       "club": "Amiens SC",
