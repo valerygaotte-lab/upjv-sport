@@ -1,13 +1,13 @@
 {
-  "updated_at": "2026-10-28T05:50:49.170929+00:00",
+  "updated_at": "2026-10-31T05:47:57.372551+00:00",
   "sources": {
     "Gothiques d'Amiens": {
       "ok": true,
-      "trouves": 1
+      "trouves": 0
     },
     "Amiens SC": {
       "ok": true,
-      "trouves": 2,
+      "trouves": 1,
       "a_confirmer": 11,
       "prochain_a_confirmer": "2026-12-12",
       "horaire_par_defaut": "14:45"
@@ -15,28 +15,6 @@
   },
   "avertissements": [],
   "evenements": [
-    {
-      "id": "amiens-sc-55670169",
-      "club": "Amiens SC",
-      "match": "Amiens SC - Thionville Lusitanos",
-      "adversaire": "Thionville Lusitanos",
-      "date": "2026-10-29T20:45:00+01:00",
-      "lieu": "Stade Crédit Agricole la Licorne, Amiens",
-      "billetterie": "https://billetterie.amiensfootball.com/",
-      "source": "https://thefootdata.com/matchs/55670169-amiens-scf-thionville-lusitanos",
-      "statut": "TheFootData (données FFF) · Ligue 3 (ex-National) · billetterie : page d'accueil du club"
-    },
-    {
-      "id": "gothiques-9",
-      "club": "Gothiques d'Amiens",
-      "match": "Gothiques d'Amiens - Briancon",
-      "adversaire": "Briancon",
-      "date": "2026-10-30T20:15:00+01:00",
-      "lieu": "Coliseum, Amiens",
-      "billetterie": "https://billetterie.lesgothiques.com/fr/evenement/9/details",
-      "source": "https://billetterie.lesgothiques.com/fr/evenement/9/details",
-      "statut": "billetterie détectée"
-    },
     {
       "id": "amiens-sc-55670186",
       "club": "Amiens SC",
