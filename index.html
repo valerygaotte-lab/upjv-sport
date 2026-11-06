@@ -779,6 +779,9 @@ body.view-hub .classe-font .dropbtn::after { content: ""; position: absolute; le
 .modal-box label { display: block; margin-bottom: 14px; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #8fb3e0; }
 .modal-box input { display: block; width: 100%; box-sizing: border-box; margin-top: 6px; padding: 12px 14px; border: 2px solid rgba(255,255,255,0.2); border-radius: 6px; background: white; color: var(--anthracite); font-size: 16px; text-transform: none; letter-spacing: 0; }
 .modal-box input:focus { outline: none; border-color: var(--red); }
+.modal-sub { margin: 4px 0 10px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.18); font-family: Orbitron, "Arial Black", sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+.modal-hint { margin: -6px 0 14px; font-size: 12px; line-height: 1.45; color: #aeb9d0; }
+.account-line[hidden] { display: none; }
 .modal-submit { width: 100%; margin-top: 8px; padding: 14px; border: 0; border-radius: 28px; background: var(--red); color: white; font-size: 16px; font-weight: 800; cursor: pointer; }
 .modal-submit:hover { background: #B00C20; }
 .modal-close { position: absolute; top: 10px; right: 14px; border: 0; background: none; color: white; font-size: 30px; line-height: 1; cursor: pointer; }
@@ -869,6 +872,11 @@ body.view-hub .classe-font .dropbtn::after { content: ""; position: absolute; le
       <label>Prénom<input name="prenom" type="text" autocomplete="given-name" required></label>
       <label>E-mail<input name="email" type="email" autocomplete="email" required></label>
       <label>Mot de passe<input name="password" type="password" autocomplete="new-password" minlength="8" required></label>
+      <p class="modal-sub">Pour te contacter</p>
+      <label>Snapchat<input name="snapchat" type="text" autocomplete="off" autocapitalize="none" placeholder="ton pseudo Snapchat" maxlength="40" data-optional></label>
+      <label>Instagram<input name="instagram" type="text" autocomplete="off" autocapitalize="none" placeholder="@ton_pseudo" maxlength="40" data-optional></label>
+      <p class="modal-hint">Indique au moins un des deux réseaux. Ils servent à la mise en relation entre membres.</p>
+      <label>Téléphone (facultatif)<input name="telephone" type="tel" autocomplete="tel" placeholder="06 12 34 56 78" maxlength="20" data-optional></label>
       <button type="submit" class="modal-submit">Créer mon compte</button>
       <p class="modal-status" role="status"></p>
       <p class="modal-switch">Déjà inscrit ? <a href="#" data-open="modal-login">Se connecter</a></p>
@@ -892,6 +900,9 @@ body.view-hub .classe-font .dropbtn::after { content: ""; position: absolute; le
       <h2 id="account-title">Mon compte</h2>
       <p class="account-line"><span>Nom</span><b id="account-name"></b></p>
       <p class="account-line"><span>E-mail</span><b id="account-email"></b></p>
+      <p class="account-line" id="account-snap-line" hidden><span>Snapchat</span><b id="account-snap"></b></p>
+      <p class="account-line" id="account-insta-line" hidden><span>Instagram</span><b id="account-insta"></b></p>
+      <p class="account-line" id="account-tel-line" hidden><span>Téléphone</span><b id="account-tel"></b></p>
       <button type="button" class="modal-submit" id="account-logout">Se déconnecter</button>
       <p class="modal-status" role="status"></p>
     </div>
@@ -1399,7 +1410,7 @@ body.view-hub .classe-font .dropbtn::after { content: ""; position: absolute; le
         <h3>1. Responsables du traitement</h3>
         <p>Walid Fouilah et Valéry Gaotte, éditeurs du site, sont responsables du traitement de vos données personnelles. Contact : <a href="mailto:valery.gaotte@gmail.com">valery.gaotte@gmail.com</a> · <a href="mailto:walidfouilah80@gmail.com">walidfouilah80@gmail.com</a></p>
         <h3>2. Données collectées et finalités</h3>
-        <p><strong>Compte :</strong> nom, prénom, adresse e-mail et mot de passe (stocké sous forme chiffrée), pour vous permettre de vous connecter. Base légale : exécution du service demandé.</p>
+        <p><strong>Compte :</strong> nom, prénom, adresse e-mail et mot de passe (stocké sous forme chiffrée), pour vous permettre de vous connecter ; identifiant Snapchat et/ou Instagram (au moins un est demandé à l'inscription) et numéro de téléphone (facultatif), pour la mise en relation entre membres. Base légale : exécution du service demandé.</p>
         <p><strong>Inscriptions Classé :</strong> nom de l'équipe ou du duo, noms et prénoms des joueurs, pour organiser les rencontres et afficher les classements. Base légale : exécution du service demandé.</p>
         <p><strong>Mise en relation (Muscu) :</strong> prénom ou pseudo, identifiant Instagram et/ou Snapchat, numéro de téléphone (facultatif) et salle souhaitée, pour vous mettre en relation avec un partenaire d'entraînement. Base légale : votre consentement, donné en cochant la case du formulaire. Vous pouvez le retirer à tout moment.</p>
         <h3>3. Destinataires et sous-traitants</h3>
@@ -1799,6 +1810,9 @@ body.view-hub .classe-font .dropbtn::after { content: ""; position: absolute; le
           if (hero) { hero.textContent = "Mon compte"; hero.dataset.open = "modal-account"; }
           document.getElementById("account-name").textContent = [meta.prenom, meta.nom].filter(Boolean).join(" ") || "—";
           document.getElementById("account-email").textContent = user.email || "";
+          [["snap", meta.snapchat], ["insta", meta.instagram ? "@" + meta.instagram : ""], ["tel", meta.telephone]].forEach(([k, v]) => {
+            document.getElementById("account-" + k).textContent = v || ""; document.getElementById("account-" + k + "-line").hidden = !v;
+          });
         } else {
           btn.textContent = "Se connecter"; btn.dataset.open = "modal-login";
           if (hero) { hero.textContent = "S'inscrire"; hero.dataset.open = "modal-signup"; }
@@ -1812,21 +1826,32 @@ body.view-hub .classe-font .dropbtn::after { content: ""; position: absolute; le
       document.querySelectorAll(".modal form").forEach((f) => f.addEventListener("submit", async (e) => {
         e.preventDefault();
         const st = f.querySelector(".modal-status");
-        const bad = [...f.querySelectorAll("input")].find((i) => !i.value.trim() || !i.checkValidity());
+        const signupForm = f.closest(".modal").id === "modal-signup";
+        const bad = [...f.querySelectorAll("input")].find((i) => !i.hasAttribute("data-optional") && (!i.value.trim() || !i.checkValidity()));
         if (bad) {
           say(st, "err", bad.type === "email" ? "Saisis une adresse e-mail valide."
             : bad.name === "password" && bad.value ? "Le mot de passe doit contenir au moins 8 caractères."
             : "Merci de remplir tous les champs.");
           bad.focus(); return;
         }
+        // Inscription : au moins un réseau social (Snapchat ou Instagram) ; le téléphone reste facultatif.
+        let snapchat = "", instagram = "", telephone = "";
+        if (signupForm) {
+          snapchat = f.snapchat.value.trim().replace(/^@+/, ""); instagram = f.instagram.value.trim().replace(/^@+/, ""); telephone = f.telephone.value.trim();
+          const fail = (msg, el) => { say(st, "err", msg); el.focus(); };
+          if (!snapchat && !instagram) { fail("Indique au moins un réseau social : Snapchat ou Instagram.", f.snapchat); return; }
+          if (snapchat && !/^[A-Za-z][A-Za-z0-9._-]{2,14}$/.test(snapchat)) { fail("Pseudo Snapchat invalide (3 à 15 caractères : lettres, chiffres, point, tiret, underscore).", f.snapchat); return; }
+          if (instagram && !/^[A-Za-z0-9._]{1,30}$/.test(instagram)) { fail("Pseudo Instagram invalide (lettres, chiffres, point et underscore uniquement).", f.instagram); return; }
+          if (telephone && !/^(\+|00)?\d{8,15}$/.test(telephone.replace(/[\s.\-()]/g, ""))) { fail("Numéro de téléphone invalide. Laisse le champ vide si tu préfères ne pas l'indiquer.", f.telephone); return; }
+        }
         if (!sb) { say(st, "err", "Le service de comptes est momentanément indisponible. Réessaie plus tard."); return; }
-        const signup = f.closest(".modal").id === "modal-signup", btn = f.querySelector(".modal-submit");
+        const signup = signupForm, btn = f.querySelector(".modal-submit");
         const email = f.email.value.trim(), password = f.password.value;
         btn.disabled = true; say(st, "", signup ? "Création du compte…" : "Connexion…");
         try {
           if (signup) {
             const { data, error } = await sb.auth.signUp({ email, password, options: {
-              data: { nom: f.nom.value.trim(), prenom: f.prenom.value.trim() },
+              data: { nom: f.nom.value.trim(), prenom: f.prenom.value.trim(), snapchat, instagram, telephone },
               emailRedirectTo: location.origin + location.pathname } });
             if (error) throw error;
             if (data.user && Array.isArray(data.user.identities) && !data.user.identities.length) throw new Error("already registered");
