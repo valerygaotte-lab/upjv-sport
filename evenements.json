@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-11-04T06:06:10.559864+00:00",
+  "updated_at": "2026-11-07T05:53:48.349735+00:00",
   "sources": {
     "Gothiques d'Amiens": {
       "ok": true,
-      "trouves": 0
+      "trouves": 3
     },
     "Amiens SC": {
       "ok": true,
@@ -25,6 +25,39 @@
       "billetterie": "https://billetterie.amiensfootball.com/",
       "source": "https://thefootdata.com/matchs/55670186-amiens-scf-sm-caen",
       "statut": "TheFootData (données FFF) · Ligue 3 (ex-National) · billetterie : page d'accueil du club"
+    },
+    {
+      "id": "gothiques-10",
+      "club": "Gothiques d'Amiens",
+      "match": "Gothiques d'Amiens - Anglet",
+      "adversaire": "Anglet",
+      "date": "2026-11-20T20:15:00+01:00",
+      "lieu": "Coliseum, Amiens",
+      "billetterie": "https://billetterie.lesgothiques.com/fr/evenement/10/details",
+      "source": "https://billetterie.lesgothiques.com/fr/evenement/10/details",
+      "statut": "billetterie détectée"
+    },
+    {
+      "id": "gothiques-11",
+      "club": "Gothiques d'Amiens",
+      "match": "Gothiques d'Amiens - Rouen",
+      "adversaire": "Rouen",
+      "date": "2026-11-22T18:00:00+01:00",
+      "lieu": "Coliseum, Amiens",
+      "billetterie": "https://billetterie.lesgothiques.com/fr/evenement/11/details",
+      "source": "https://billetterie.lesgothiques.com/fr/evenement/11/details",
+      "statut": "billetterie détectée"
+    },
+    {
+      "id": "gothiques-12",
+      "club": "Gothiques d'Amiens",
+      "match": "Gothiques d'Amiens - Grenoble",
+      "adversaire": "Grenoble",
+      "date": "2026-11-29T18:00:00+01:00",
+      "lieu": "Coliseum, Amiens",
+      "billetterie": "https://billetterie.lesgothiques.com/fr/evenement/12/details",
+      "source": "https://billetterie.lesgothiques.com/fr/evenement/12/details",
+      "statut": "billetterie détectée"
     }
   ]
 }
